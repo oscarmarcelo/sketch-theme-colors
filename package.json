@@ -6,7 +6,8 @@
   "scripts": {
     "start": "gulp",
     "build": "gulp build",
-    "get-colors": "node ./scripts/get-colors.js"
+    "get-colors": "node ./scripts/get-colors.js",
+    "publish": "node ./scripts/publish.js"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "autoprefixer": "^9.8.0",
     "browser-sync": "^2.26.7",
     "esm": "^3.2.25",
+    "gh-pages": "^3.0.0",
     "gulp": "^4.0.2",
     "gulp-notify": "^3.2.0",
     "gulp-plumber": "^1.2.1",
