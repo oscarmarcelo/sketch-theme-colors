@@ -1,0 +1,23 @@
+.cell-head {
+  @apply flex items-center;
+
+  &__color-icon {
+    @apply rounded-full w-3 h-3 mr-2 flex-shrink-0;
+  }
+
+  &__text {
+    @apply flex-grow;
+  }
+
+  &__badge {
+    @apply rounded-full ml-4 px-2 flex-shrink-0;
+
+    &--added {
+      @apply text-green-700 bg-green-200;
+    }
+
+    &--changed {
+      @apply text-orange-700 bg-orange-200;
+    }
+  }
+}

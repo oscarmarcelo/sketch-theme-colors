@@ -1,0 +1,111 @@
+.dropdown {
+  @apply relative inline-block text-left select-none;
+
+  &__button {
+    @apply border border-gray-400 rounded-md text-gray-700 bg-white w-full px-4 py-2 inline-flex justify-center text-left text-sm leading-5 font-medium transition ease-in-out duration-150;
+
+    &:hover {
+      @apply text-gray-600;
+    }
+
+    &:focus {
+      @apply shadow-outline outline-none border-blue-300;
+    }
+
+    &:active {
+      @apply bg-gray-100 text-gray-800;
+    }
+
+    &:disabled {
+      @apply bg-gray-200 text-gray-500;
+    }
+  }
+
+  &__placeholder {
+    @apply flex-grow inline-flex items-center;
+  }
+
+  &__chevron {
+    @apply fill-current w-5 h-5 -mr-1 ml-2 flex-shrink-0;
+  }
+
+  &__menu-wrapper {
+    @apply shadow-lg rounded-md min-w-full mt-2 absolute left-0 opacity-0 transform scale-95 origin-top-left transition ease-in duration-75 pointer-events-none;
+
+    &--align-right {
+      @apply right-0 left-auto origin-top-right;
+    }
+
+    .dropdown--active & {
+      @apply opacity-100 scale-100 ease-out duration-100 pointer-events-auto;
+    }
+  }
+
+  &__menu {
+    @apply shadow-xs rounded-md bg-white;
+  }
+
+  &__group {
+    @apply py-1;
+  }
+
+  &__separator {
+    @apply border-t border-gray-100;
+  }
+
+  &__item {
+    @apply text-gray-700 px-4 py-2 flex justify-between items-center text-sm leading-5;
+
+    &:hover {
+      @apply bg-gray-100 text-gray-900;
+    }
+
+    &:focus {
+      @apply outline-none bg-gray-100 text-gray-900;
+    }
+
+    &--active {
+      @apply bg-gray-200 !important;
+    }
+
+    &-color-icon {
+      @apply rounded-full w-3 h-3 mr-2
+    }
+
+    &-name {
+      @apply flex-grow;
+    }
+
+    &-badges {
+      @apply ml-5 flex flex-shrink-0 /* TODO: `space-x-px` isn't working. Using Tailwind class instead. */
+    }
+  }
+
+  &__badge {
+    @apply px-2 text-xs leading-4;
+
+    &:first-child {
+      @apply rounded-l-full;
+    }
+
+    &:last-child {
+      @apply rounded-r-full;
+    }
+
+    &--added {
+      @apply text-green-700 bg-green-200;
+    }
+
+    &--changed {
+      @apply text-orange-700 bg-orange-200;
+    }
+
+    &--removed {
+      @apply text-red-700 bg-red-200;
+    }
+
+    &--unchanged {
+      @apply text-blue-700 bg-blue-200;
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Get Sketch Theme Colors",
+  "identifier": "com.oscarmarcelo.get-sketch-theme-colors",
+  "version": "0.1.0",
+  "commands": [
+    {
+      "name": "get-colors",
+      "identifier": "get-colors",
+      "script": "index.js"
+    }
+  ]
+}

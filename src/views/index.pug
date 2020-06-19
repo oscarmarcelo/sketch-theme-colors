@@ -1,0 +1,103 @@
+- const pkg = require('../../package.json');
+
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title Sketch Theme Colors
+    link(rel="stylesheet" href="./assets/styles/main.css")
+
+  body
+    template#dropdown-group
+      .dropdown__group(role="group")
+
+    template#dropdown-separator
+      .dropdown__separator(role="separator")
+
+    template#version-dropdown-item
+      a.dropdown__item(href="#" role="menuitem" data-version)
+        span.dropdown__item-name 66
+        span.dropdown__item-badges.space-x-px
+          span.dropdown__badge.dropdown__badge--added
+          span.dropdown__badge.dropdown__badge--changed
+          span.dropdown__badge.dropdown__badge--removed
+          span.dropdown__badge.dropdown__badge--unchanged =
+
+    template#head-th
+      th.cell.cell--head
+        .cell-head
+          span.cell-head__color-icon
+          span.cell-head__text
+
+    template#body-th
+      th.cell
+        .cell-head
+          span.cell-head__text
+          span.cell-head__badge
+
+    template#body-td
+      td.cell
+        .color
+          .color__preview
+            .color__preview-inner
+          .color__text
+            span.color__text-number-sign #
+            span.color__text-rgb
+            span.color__text-alpha
+
+    header.space-x-5
+      .flex-grow
+        h1 Sketch Theme Colors
+        p
+          = `${pkg.description}, made by`
+          |
+          |
+          a(href="https://oscarmarcelo.com") Oscar Marcelo
+          | .
+
+      .input-group.flex-shrink-0
+        svg.input-group__icon-left(viewBox="0 0 20 20" fill="currentColor")
+          path(fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd")
+
+        input.input-group__input(type="search" placeholder="Search" spellcheck="false")
+
+      .dropdown.flex-shrink-0
+        button.dropdown__button#colors-menu(aria-haspopup="true")
+          span.dropdown__placeholder All Colors
+          svg.dropdown__chevron(viewBox="0 0 20 20")
+            path(fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd")
+
+        .dropdown__menu-wrapper
+          .dropdown__menu(role="menu" aria-orientation="vertical" aria-labelledby="colors-menu")
+            .dropdown__group(role="group")
+              a.dropdown__item.dropdown__item--active(href="#" role="menuitem") All Colors
+
+            .dropdown__separator(role="separator")
+
+            .dropdown__group(role="group")
+              each color in require('../../src/scripts/data').accentColors
+                a.dropdown__item(href="#" role="menuitem" data-color=color.toLowerCase())
+                  span.dropdown__item-color-icon(class=`bg-${color === 'Graphite' ? 'gray' : color.toLowerCase()}-500`)
+                  span.dropdown__item-name= color
+
+      .button-group.-space-x-px.flex-shrink-0
+        button.button-group__button(data-value="theme" aria-pressed="true") Theme
+        button.button-group__button(data-value="plist") Property List
+
+      .dropdown.flex-shrink-0
+        button.dropdown__button#versions-menu(aria-haspopup="true")
+          span.dropdown__placeholder Version
+          svg.dropdown__chevron(viewBox="0 0 20 20")
+            path(fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd")
+
+        .dropdown__menu-wrapper.dropdown__menu-wrapper--align-right
+          .dropdown__menu(role="menu" aria-orientation="vertical" aria-labelledby="versions-menu")
+
+
+    table
+      thead
+      tbody
+
+    script(src="./assets/scripts/data.js" type="module")
+    script(src="./assets/scripts/main.js" type="module")

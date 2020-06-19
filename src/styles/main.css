@@ -1,0 +1,16 @@
+@import 'tailwindcss/base';
+
+@import './base/_base.css';
+@import './base/_form.css';
+@import './base/_table.css';
+
+/* @import 'tailwindcss/components'; */
+
+@import './components/_input-group.css';
+@import './components/_button-group.css';
+@import './components/_dropdown.css';
+@import './components/_table.css';
+@import './components/_cell-head.css';
+@import './components/_color.css';
+
+@import 'tailwindcss/utilities';

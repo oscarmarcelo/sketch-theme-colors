@@ -1,0 +1,132 @@
+/*
+ * ========================================================
+ * components/table
+ * ========================================================
+ */
+
+/* Sticky first row and column
+ * ----------------------------
+ */
+th {
+  @apply sticky;
+
+  thead & {
+    top: -1px;
+
+    &:first-child {
+      @apply bg-gray-100 z-10;
+    }
+  }
+}
+
+thead th:first-child,
+tbody th {
+  @apply border-r border-gray-200 bg-white sticky font-normal;
+  left: 2.5rem;
+
+  &::before {
+    content: '';
+    @apply bg-gray-200 absolute w-20 top-0 ;
+    bottom: -1px;
+    right: 100%;
+    z-index: -1;
+  }
+
+  &::after {
+    content: '';
+    background: linear-gradient(to right, #00000011, #00000004, #0000);
+    @apply absolute w-2 top-0 ;
+    bottom: -1px;
+    left: 100%;
+    z-index: -1;
+  }
+}
+
+
+/* Keep right rounded corners of thr table when there are filtered colors.
+ * ----------------------------
+ */
+table[data-color] {
+  thead tr:first-child .cell--dark {
+    @apply rounded-tr-md;
+  }
+
+  tbody tr:last-child .cell--dark {
+    @apply rounded-br-md;
+  }
+}
+
+
+/* Hover row
+ * ----------------------------
+ */
+tbody tr:hover {
+  th {
+    @apply bg-gray-100;
+  }
+
+  td {
+    @apply bg-gray-200;
+  }
+}
+
+
+/* Filtered Columns
+ * ----------------------------
+ */
+table {
+  &[data-color="blue"] [data-color]:not([data-color="blue"]),
+  &[data-color="purple"] [data-color]:not([data-color="purple"]),
+  &[data-color="pink"] [data-color]:not([data-color="pink"]),
+  &[data-color="red"] [data-color]:not([data-color="red"]),
+  &[data-color="orange"] [data-color]:not([data-color="orange"]),
+  &[data-color="yellow"] [data-color]:not([data-color="yellow"]),
+  &[data-color="green"] [data-color]:not([data-color="green"]),
+  &[data-color="graphite"] [data-color]:not([data-color="graphite"]) {
+    @apply hidden;
+  }
+}
+
+/* Cells
+ * ----------------------------
+ */
+.cell {
+  &--dark {
+    @apply border-gray-900 !important;
+    @apply bg-gray-800 text-gray-200;
+
+    tr:hover & {
+      @apply bg-gray-700;
+    }
+  }
+
+  &--head {
+    &.cell--dark {
+      @apply bg-gray-700 border-gray-900 text-gray-500
+    }
+  }
+
+  &--highlighted {
+    @apply bg-red-300 !important;
+
+    &.cell--dark {
+      @apply bg-red-900 !important;
+    }
+  }
+
+  &--added {
+    @apply bg-green-100;
+
+    &.cell--dark {
+      @apply bg-green-900;
+    }
+  }
+
+  &--changed {
+    @apply bg-orange-100;
+
+    &.cell--dark {
+      @apply bg-orange-900;
+    }
+  }
+}

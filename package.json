@@ -1,0 +1,82 @@
+{
+  "name": "sketch-theme-colors",
+  "version": "1.0.0",
+  "description": "A quick way to see the colors used in Sketch's UI",
+  "main": "index.js",
+  "scripts": {
+    "start": "gulp",
+    "build": "gulp build",
+    "get-colors": "node ./scripts/get-colors.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oscarmarcelo/sketch-theme-colors.git"
+  },
+  "keywords": [
+    "Sketch",
+    "theme",
+    "colors"
+  ],
+  "author": {
+    "name": "Oscar Marcelo",
+    "url": "https://oscarmarcelo.com"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oscarmarcelo/sketch-theme-colors/issues"
+  },
+  "homepage": "https://oscarmarcelo.github.io/sketch-theme-colors",
+  "private": true,
+  "dependencies": {
+    "tailwindcss": "^1.4.6"
+  },
+  "devDependencies": {
+    "autoprefixer": "^9.8.0",
+    "browser-sync": "^2.26.7",
+    "esm": "^3.2.25",
+    "gulp": "^4.0.2",
+    "gulp-notify": "^3.2.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^8.0.0",
+    "gulp-pug": "^4.0.1",
+    "postcss-import": "^12.0.1",
+    "postcss-nested": "^4.2.1",
+    "run-applescript": "^4.0.0",
+    "xo": "^0.32.0"
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions",
+    "last 2 ChromeAndroid versions",
+    "last 2 iOS versions"
+  ],
+  "babel": {
+    "presets": [
+      "@babel/env"
+    ],
+    "only": [
+      "./src/**/*"
+    ]
+  },
+  "xo": {
+    "space": 2,
+    "envs": [
+      "node",
+      "browser"
+    ],
+    "rules": {
+      "no-multiple-empty-lines": [
+        1,
+        {
+          "max": 3
+        }
+      ]
+    },
+    "ignores": [
+      "build/**",
+      "dist/**"
+    ]
+  }
+}

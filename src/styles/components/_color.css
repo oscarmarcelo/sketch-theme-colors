@@ -1,0 +1,42 @@
+.color {
+  @apply flex items-center;
+
+  &__preview {
+    @apply rounded-full w-6 h-6 mr-2;
+    background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee 100%),
+                      linear-gradient(45deg, #eee 25%, white 25%, white 75%, #eee 75%, #eee 100%);
+    background-size: .75rem;
+    background-position: 0px 0px, .375rem .375rem;
+
+    .cell--dark & {
+      background-image: linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222 100%),
+                        linear-gradient(45deg, #222 25%, #000 25%, #000 75%, #222 75%, #222 100%);
+    }
+
+    &-inner {
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03), inset 0 1px 2px rgba(0, 0, 0, 0.06);
+      border-radius: inherit;
+      height: 100%;
+    }
+  }
+
+  &__text {
+    @apply font-mono;
+
+    &-number-sign {
+      @apply text-gray-500;
+
+      .cell--dark & {
+        @apply text-gray-600;
+      }
+    }
+
+    &-alpha {
+      @apply text-gray-600;
+
+      .cell--dark & {
+        @apply text-gray-500;
+      }
+    }
+  }
+}

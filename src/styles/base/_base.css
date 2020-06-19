@@ -1,0 +1,27 @@
+body {
+  @apply bg-gray-200 text-gray-900 p-10;
+  width: max-content;
+}
+
+header {
+  width: calc(100vw - 2.5rem * 2);
+  @apply sticky flex mb-10 items-center z-20; /* TODO: `space-x-5` isn't working. Using Tailwind class instead. */
+  left: 2.5rem;
+}
+
+h1 {
+  @apply text-orange-500 font-bold text-4xl;
+}
+
+header p {
+  @apply text-gray-600 text-sm;
+}
+
+header a {
+  @apply text-gray-700;
+}
+
+header a:hover,
+header a:focus {
+  @apply text-red-700;
+}

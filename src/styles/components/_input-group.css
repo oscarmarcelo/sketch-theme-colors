@@ -1,0 +1,11 @@
+.input-group {
+  @apply relative;
+
+  &__icon-left {
+    @apply text-gray-700 w-4 h-full ml-4 absolute left-0 pointer-events-none;
+  }
+
+  &__input {
+    @apply block w-full pl-10;
+  }
+}

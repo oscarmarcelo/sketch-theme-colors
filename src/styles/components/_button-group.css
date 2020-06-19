@@ -1,0 +1,32 @@
+.button-group {
+  @apply flex; /* TODO: `-space-x-px` isn't working. Using Tailwind class instead. */
+
+  &__button {
+    @apply border border-gray-400 px-4 py-2 bg-white text-sm leading-5 font-medium text-gray-700 transition ease-in-out duration-150;
+
+      &:hover {
+        @apply text-gray-600;
+      }
+
+      &:focus {
+        @apply outline-none border-blue-300; /* TODO: `shadow-outline-blue` isn't working. Using Tailwind class instead. */
+      }
+
+      &:active {
+        @apply bg-gray-100 text-gray-800; /* TODO: `bg-gray-50` isn't working. Using Tailwind class instead. */
+      }
+
+      &:first-child {
+        @apply rounded-l-md;
+      }
+
+      &:last-child {
+        @apply rounded-r-md;
+      }
+
+      &[aria-pressed="true"] {
+        @apply border-gray-800 bg-gray-700 text-gray-100;
+        z-index: 1;
+      }
+  }
+}
