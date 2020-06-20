@@ -30,6 +30,7 @@ These are some of the things I wish to work on next:
 - Improve design;
 - Improve code quality;
 - Mount all Sketch Data at the build stage the project instead of mounting on the client-side;
+- Prioritize data loading and load table with default content as soon as possible;
 - Add diff tooltips in changed cells;
 - Show removed variables and properties.
 - Automate the generation of the list of Sketch versions, which currently is in [`data.js`](./src/scripts/data.js);
