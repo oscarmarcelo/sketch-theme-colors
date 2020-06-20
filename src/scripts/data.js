@@ -150,6 +150,12 @@ export function mountData(data) {
 
 
 
+/*
+ * ========================================================
+ * Try to interpolate Property List values into colors.
+ * ========================================================
+ */
+
 function interpolateValue(plist, value) {
   const isHex = /^#([\da-f]{3,8})(?::alpha\((\d?\.?\d+)\))?$/i; // Look for hex colors with and without `:alpha(#.#)`.
   const isRGB = /^s?rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d?\.?\d+))?\)$/i; // Look for (s)rgb(a) colors.
@@ -174,6 +180,14 @@ function interpolateValue(plist, value) {
   return value;
 }
 
+
+
+/*
+ * ========================================================
+ * Normalize hexadecimal color codes to 6 or 8 upper case characters.
+ * ========================================================
+ */
+
 function normalizeHex(hex, alpha) {
   if (hex.startsWith('#')) {
     hex = hex.slice(1);
@@ -191,6 +205,12 @@ function normalizeHex(hex, alpha) {
 }
 
 
+
+/*
+ * ========================================================
+ * Convert (s)rgb(a) notations to hexadecimal color codes.
+ * ========================================================
+ */
 
 function rgbToHex(red, green, blue, alpha) {
   let hex = '#';
