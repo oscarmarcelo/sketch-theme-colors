@@ -738,6 +738,36 @@ tbody tr:last-child > :last-child {
 
 /* @import 'tailwindcss/components'; */
 
+.spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  position: relative;
+}
+
+.spinner::before,
+  .spinner::after {
+    content: '';
+    border-radius: 9999px;
+    position: absolute;
+    border-width: 4px;
+    --border-opacity: 1;
+    border-color: #e2e8f0;
+    border-color: rgba(226, 232, 240, var(--border-opacity));
+    width: 100%;
+    height: 100%;
+  }
+
+.spinner::after {
+    border-color: #a0aec0 transparent transparent transparent;
+    animation: spin .4s linear infinite;
+  }
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
 .input-group {
   position: relative;
 }
