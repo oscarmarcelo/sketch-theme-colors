@@ -6,6 +6,7 @@
 
 /* @import 'tailwindcss/components'; */
 
+@import './components/spinner.css';
 @import './components/_input-group.css';
 @import './components/_button-group.css';
 @import './components/_dropdown.css';

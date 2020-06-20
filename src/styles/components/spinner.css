@@ -1,0 +1,20 @@
+.spinner {
+  @apply w-6 h-6 relative;
+
+  &::before,
+  &::after {
+    content: '';
+    @apply rounded-full absolute border-4 border-gray-300 w-full h-full;
+  }
+
+  &::after {
+    border-color: theme('colors.gray.500') transparent transparent transparent;
+    animation: spin .4s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}

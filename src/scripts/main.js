@@ -6,6 +6,10 @@ import {initButtonGroup} from './button-group.js';
 
 
 
+const spinner = document.querySelector('.spinner');
+
+
+
 /*
  * ========================================================
  * Build data and table.
@@ -20,6 +24,8 @@ getData()
 
     table.buildThemeHeader();
     table.buildThemeBody();
+
+    spinner.classList.add('hidden');
   });
 
 
@@ -59,12 +65,12 @@ for (const item of colorItems) {
   item.addEventListener('click', event => {
     event.preventDefault();
 
-    const table = document.querySelector('table');
+    const tableElement = document.querySelector('table');
 
     if (item.dataset.color) {
-      table.dataset.color = item.dataset.color;
+      tableElement.dataset.color = item.dataset.color;
     } else {
-      delete table.dataset.color;
+      delete tableElement.dataset.color;
     }
 
     const selectedItem = [...colorItems].find(item => item.classList.contains('dropdown__item--active'));
@@ -201,6 +207,8 @@ function buildVersionsDropdownMenu() {
 
       closeDropdown(event.target.closest('.dropdown'));
 
+      spinner.classList.remove('hidden');
+
       table.clearBody();
 
       if (document.querySelector('.button-group [aria-pressed="true"]').dataset.value === 'plist') {
@@ -208,6 +216,8 @@ function buildVersionsDropdownMenu() {
       } else {
         table.buildThemeBody();
       }
+
+      spinner.classList.add('hidden');
     });
 
     versionsMenuGroupFragment.querySelector('.dropdown__group').append(item);
@@ -243,6 +253,8 @@ for (const button of buttonGroup.querySelectorAll('.button-group__button')) {
 
       colorsDropdown.querySelector('.dropdown__button').disabled = button.dataset.value !== 'theme';
 
+      spinner.classList.remove('hidden');
+
       table.clearHeader();
       table.clearBody();
 
@@ -253,6 +265,8 @@ for (const button of buttonGroup.querySelectorAll('.button-group__button')) {
         table.buildThemeHeader();
         table.buildThemeBody();
       }
+
+      spinner.classList.add('hidden');
     }
   });
 }
