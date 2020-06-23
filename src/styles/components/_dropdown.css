@@ -17,7 +17,7 @@
     }
 
     &:disabled {
-      @apply bg-gray-200 text-gray-500;
+      @apply bg-gray-200 text-gray-500 cursor-not-allowed;
     }
   }
 
