@@ -1,6 +1,6 @@
 {
   "name": "sketch-theme-colors",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A quick way to see the colors used in Sketch's UI",
   "main": "index.js",
   "scripts": {
