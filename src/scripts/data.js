@@ -165,7 +165,7 @@ function interpolateValue(plist, value) {
     const matches = value.match(isHex);
 
     value = normalizeHex(matches[1], matches[2] || null);
-  } else if (isRGB.test(value)) { // Look for (s)rgb(a) colors.
+  } else if (isRGB.test(value)) {
     const matches = value.match(isRGB);
 
     value = rgbToHex(matches[1], matches[2], matches[3], matches[4] || null);
@@ -173,6 +173,10 @@ function interpolateValue(plist, value) {
     const matches = value.match(isVar);
 
     value = interpolateValue(plist, plist[matches[1]]);
+
+    if (matches[2]) {
+      value = applyAlpha(value, matches[2]);
+    }
   } else {
     value = false;
   }
@@ -198,7 +202,7 @@ function normalizeHex(hex, alpha) {
   }
 
   if (alpha) {
-    hex += Math.round(Number(alpha) * 255).toString(16).padStart(2, 0);
+    hex = applyAlpha(hex, alpha);
   }
 
   return '#' + hex.toUpperCase();
@@ -220,8 +224,26 @@ function rgbToHex(red, green, blue, alpha) {
   hex += Number(blue).toString(16).padStart(2, 0);
 
   if (alpha) {
-    hex += Math.round(Number(alpha) * 255).toString(16).padStart(2, 0);
+    hex = applyAlpha(hex, alpha);
   }
 
-  return hex;
+  return hex.toUpperCase();
+}
+
+
+
+/*
+ * ========================================================
+ * Apply alpha channel to hexadecimal color codes.
+ * ========================================================
+ */
+
+function applyAlpha(hex, alpha) {
+  alpha = Number(alpha);
+
+  if (alpha < 1) {
+    hex += Math.round(alpha * 255).toString(16).padStart(2, 0);
+  }
+
+  return hex.toUpperCase();
 }
