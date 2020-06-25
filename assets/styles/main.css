@@ -930,6 +930,7 @@ tbody tr:last-child > :last-child {
       --text-opacity: 1;
       color: #a0aec0;
       color: rgba(160, 174, 192, var(--text-opacity));
+      cursor: not-allowed;
     }
 
 .dropdown__placeholder {
