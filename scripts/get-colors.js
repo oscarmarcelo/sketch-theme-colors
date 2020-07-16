@@ -1,4 +1,4 @@
-const {join} = require('path');
+const {join, parse} = require('path');
 const {execSync} = require('child_process');
 const runAppleScript = require('run-applescript').sync;
 
@@ -20,6 +20,21 @@ const accentColors = [
   'Graphite'
 ];
 
+const sketchPath = execSync('mdfind kMDItemCFBundleIdentifier=="com.bohemiancoding.sketch3" | head -n 1')
+  .toString()
+  .trim();
+
+const sketchToolPath = `${sketchPath}/Contents/MacOS/sketchtool`;
+
+const sketchVersion = execSync(
+  [
+    sketchToolPath,
+    '--version'
+  ].join(' ')
+)
+  .toString()
+  .match(/\d+(?:\.\d+)?/);
+
 
 
 function runPlugin(filename) {
@@ -30,7 +45,7 @@ function runPlugin(filename) {
 
   execSync(
     [
-      '$(mdfind kMDItemCFBundleIdentifier=="com.bohemiancoding.sketch3" | head -n 1)/Contents/MacOS/sketchtool',
+      sketchToolPath,
       'run',
       join(__dirname, 'get-sketch-theme-colors.sketchplugin'),
       'get-colors',
@@ -40,9 +55,10 @@ function runPlugin(filename) {
   );
 }
 
+console.log(`Getting data from Sketch ${sketchVersion} in ${parse(sketchPath).dir}`);
 
 
-console.log('Opening System Preferences...');
+console.log('\nOpening System Preferences...');
 
 runAppleScript(`
   tell application "System Preferences"
