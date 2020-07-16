@@ -1,6 +1,10 @@
+#!/usr/bin/env node
+
 const {join, parse} = require('path');
 const {execSync} = require('child_process');
 const runAppleScript = require('run-applescript').sync;
+const ora = require('ora');
+const chalk = require('chalk');
 
 
 
@@ -19,21 +23,6 @@ const accentColors = [
   'Green',
   'Graphite'
 ];
-
-const sketchPath = execSync('mdfind kMDItemCFBundleIdentifier=="com.bohemiancoding.sketch3" | head -n 1')
-  .toString()
-  .trim();
-
-const sketchToolPath = `${sketchPath}/Contents/MacOS/sketchtool`;
-
-const sketchVersion = execSync(
-  [
-    sketchToolPath,
-    '--version'
-  ].join(' ')
-)
-  .toString()
-  .match(/\d+(?:\.\d+)?/);
 
 
 
@@ -55,20 +44,47 @@ function runPlugin(filename) {
   );
 }
 
-console.log(`Getting data from Sketch ${sketchVersion} in ${parse(sketchPath).dir}`);
 
 
-console.log('\nOpening System Preferences...');
+const spinner = ora('Looking for Sketch...').start();
+
+const sketchPath = execSync('mdfind kMDItemCFBundleIdentifier=="com.bohemiancoding.sketch3" | head -n 1')
+  .toString()
+  .trim();
+
+if (sketchPath.length === 0) {
+  spinner.fail('Sketch not found.\n');
+  process.exit(0);
+}
+
+const sketchToolPath = `${sketchPath}/Contents/MacOS/sketchtool`;
+
+const sketchVersion = execSync(
+  [
+    sketchToolPath,
+    '--version'
+  ].join(' ')
+)
+  .toString()
+  .match(/\d+(?:\.\d+)?/);
+
+spinner.info(`Getting data from Sketch ${sketchVersion} in ${parse(sketchPath).dir}\n`);
+
+
+
+spinner.start('Opening System Preferences...');
 
 runAppleScript(`
-  tell application "System Preferences"
-    reveal anchor "Main" of pane id "com.apple.preference.general"
-  end tell
+tell application "System Preferences"
+reveal anchor "Main" of pane id "com.apple.preference.general"
+end tell
 `);
 
+spinner.succeed();
 
 
-console.log('\nSaving current Appearance Mode and Accent Color...');
+
+spinner.start('Saving current Appearance Mode and Accent Color...\n');
 
 let currentMode;
 let currentColor;
@@ -105,35 +121,54 @@ for (const color of accentColors) {
   }
 }
 
+spinner.succeed();
+
 
 
 for (const mode of appearanceModes) {
-  console.log(`\nChanging Appearance Mode to ${mode}...`);
+  spinner.start(`Changing Appearance Mode to ${chalk.bold(mode)}...\n`);
+
+  runAppleScript(`
+    tell application "System Events"
+      repeat until exists of checkbox "Dark" of window "General" of application process "System Preferences"
+        delay 0.1
+      end repeat
+      -- Appearance
+      click checkbox "${mode}" of window "General" of application process "System Preferences"
+    end tell
+  `);
+
+  spinner.succeed();
+
 
   for (const color of accentColors) {
-    console.log(`\nChanging Accent Color to ${color}...`);
+    spinner.start(`Changing Accent Color to ${chalk.keyword(color === 'Graphite' ? 'gray' : color.toLowerCase())(color)}...`);
 
     runAppleScript(`
       tell application "System Events"
         repeat until exists of checkbox "Dark" of window "General" of application process "System Preferences"
           delay 0.1
         end repeat
-        -- Appearance
-        click checkbox "${mode}" of window "General" of application process "System Preferences"
         -- Accent Color
         click checkbox "${color}" of window "General" of application process "System Preferences"
       end tell
     `);
 
-    console.log(`Generating "${mode.toLowerCase() + color}.json"...`);
+    spinner.succeed();
+
+
+    spinner.start(`Generating "${mode.toLowerCase() + color}.json"...\n`);
+
     runPlugin(mode.toLowerCase() + color);
+
+    spinner.succeed();
   }
 }
 
 
 
 if (currentMode && currentColor) {
-  console.log('\nReverting Appearance Mode and Accent Color...');
+  spinner.start('Reverting Appearance Mode and Accent Color...\n');
 
   runAppleScript(`
     tell application "System Events"
@@ -146,20 +181,26 @@ if (currentMode && currentColor) {
       click checkbox "${currentColor}" of window "General" of application process "System Preferences"
     end tell
   `);
+
+  spinner.succeed();
 }
 
 
 
-console.log('\nClosing System Preferences...');
+spinner.start('Closing System Preferences...\n');
 
 runAppleScript('tell application "System Preferences" to quit');
 
+spinner.succeed();
 
 
-console.log('\nGenerating "plist.json"...');
+
+spinner.start('Generating "plist.json"...\n');
 
 runPlugin('plist');
 
+spinner.succeed();
 
 
-console.log('\nAll done!\n');
+
+spinner.info(chalk.bold('All done!\n'));
