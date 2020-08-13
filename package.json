@@ -29,24 +29,24 @@
   "homepage": "https://oscarmarcelo.github.io/sketch-theme-colors",
   "private": true,
   "dependencies": {
-    "tailwindcss": "^1.4.6"
+    "tailwindcss": "^1.6.2"
   },
   "devDependencies": {
-    "autoprefixer": "^9.8.0",
-    "browser-sync": "^2.26.7",
+    "autoprefixer": "^9.8.6",
+    "browser-sync": "^2.26.12",
     "chalk": "^4.1.0",
     "esm": "^3.2.25",
-    "gh-pages": "^3.0.0",
+    "gh-pages": "^3.1.0",
     "gulp": "^4.0.2",
     "gulp-notify": "^3.2.0",
     "gulp-plumber": "^1.2.1",
     "gulp-postcss": "^8.0.0",
     "gulp-pug": "^4.0.1",
-    "ora": "^4.0.4",
+    "ora": "^4.1.1",
     "postcss-import": "^12.0.1",
-    "postcss-nested": "^4.2.1",
+    "postcss-nested": "^4.2.3",
     "run-applescript": "^4.0.0",
-    "xo": "^0.32.0"
+    "xo": "^0.32.1"
   },
   "browserslist": [
     "last 2 Chrome versions",
