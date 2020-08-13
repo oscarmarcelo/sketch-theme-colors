@@ -178,7 +178,7 @@ function interpolateValue(plist, value) {
 
     value = interpolateValue(plist, plist[matches[1]]);
 
-    if (matches[2]) {
+    if (value && matches[2]) {
       value = applyAlpha(value, matches[2]);
     }
   } else {
