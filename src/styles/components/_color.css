@@ -3,14 +3,14 @@
 
   &__preview {
     @apply rounded-full w-6 h-6 mr-2;
-    background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee 100%),
-                      linear-gradient(45deg, #eee 25%, white 25%, white 75%, #eee 75%, #eee 100%);
-    background-size: .75rem;
-    background-position: 0px 0px, .375rem .375rem;
+    background-image: linear-gradient(45deg, #eee 25%, transparent 25% 75%, #eee 75%),
+                      linear-gradient(45deg, #eee 25%, white 25% 75%, #eee 75%);
+    background-size: 50% 50%;
+    background-position: 0 0, 50% 50%;
 
     .cell--dark & {
-      background-image: linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222 100%),
-                        linear-gradient(45deg, #222 25%, #000 25%, #000 75%, #222 75%, #222 100%);
+      background-image: linear-gradient(45deg, #222 25%, transparent 25% 75%, #222 75%),
+                        linear-gradient(45deg, #222 25%, #000 25% 75%, #222 75%);
     }
 
     &-inner {
