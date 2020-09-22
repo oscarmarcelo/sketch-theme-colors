@@ -29,7 +29,7 @@
   "homepage": "https://oscarmarcelo.github.io/sketch-theme-colors",
   "private": true,
   "dependencies": {
-    "tailwindcss": "^1.6.2"
+    "tailwindcss": "^1.8.10"
   },
   "devDependencies": {
     "autoprefixer": "^9.8.6",
