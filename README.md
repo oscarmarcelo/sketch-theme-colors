@@ -34,3 +34,4 @@ These are some of the things I wish to work on next:
 - Add diff tooltips in changed cells;
 - Show removed variables and properties.
 - Automate the generation of the list of Sketch versions, which currently is in [`data.js`](./src/scripts/data.js);
+- Fix content not respecting search filter when one of the other filters changes.
