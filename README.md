@@ -32,6 +32,8 @@ These are some of the things I wish to work on next:
 - Mount all Sketch Data at the build stage the project instead of mounting on the client-side;
 - Prioritize data loading and load table with default content as soon as possible;
 - Add diff tooltips in changed cells;
-- Show removed variables and properties.
+- Show removed variables and properties;
 - Automate the generation of the list of Sketch versions, which currently is in [`data.js`](./src/scripts/data.js);
+- Automate repo updates through GitHub Actions;
+  - Gather new data as soon as a new Sketch update releases;
 - Fix content not respecting search filter when one of the other filters changes.
