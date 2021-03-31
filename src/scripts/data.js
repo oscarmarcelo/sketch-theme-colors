@@ -33,7 +33,8 @@ export const sketchVersions = [
   'v70.4',
   'v70.5',
   'v70.6',
-  'v71'
+  'v71',
+  'v71.1'
 ];
 
 
