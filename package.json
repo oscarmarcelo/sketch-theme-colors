@@ -2,7 +2,6 @@
   "name": "sketch-theme-colors",
   "version": "1.10.0",
   "description": "A quick way to see the colors used in Sketch's UI",
-  "main": "index.js",
   "scripts": {
     "start": "gulp",
     "build": "gulp build",
@@ -29,24 +28,26 @@
   "homepage": "https://oscarmarcelo.github.io/sketch-theme-colors",
   "private": true,
   "dependencies": {
-    "tailwindcss": "^1.9.6"
+    "tailwindcss": "^2.1.2"
   },
   "devDependencies": {
-    "autoprefixer": "^9.8.6",
+    "autoprefixer": "^10.2.5",
     "browser-sync": "^2.26.14",
-    "chalk": "^4.1.0",
+    "chalk": "^4.1.1",
     "esm": "^3.2.25",
     "gh-pages": "^3.1.0",
     "gulp": "^4.0.2",
-    "gulp-notify": "^3.2.0",
+    "gulp-notify": "^4.0.0",
     "gulp-plumber": "^1.2.1",
-    "gulp-postcss": "^8.0.0",
+    "gulp-postcss": "^9.0.0",
     "gulp-pug": "^4.0.1",
-    "ora": "^4.1.1",
-    "postcss-import": "^12.0.1",
-    "postcss-nested": "^4.2.3",
+    "ora": "^5.4.0",
+    "postcss": "^8.2.15",
+    "postcss-import": "^14.0.2",
+    "postcss-nested": "^5.0.5",
     "run-applescript": "^4.0.0",
-    "xo": "^0.32.1"
+    "semver": "^7.3.5",
+    "xo": "^0.40.1"
   },
   "browserslist": [
     "last 2 Chrome versions",
@@ -70,11 +71,26 @@
       "node",
       "browser"
     ],
+    "globals": [
+      "MSColor",
+      "MSTheme",
+      "nil",
+      "NSColorWithColorSpace",
+      "NSFileManager",
+      "NSString",
+      "NSUTF8StringEncoding"
+    ],
     "rules": {
       "no-multiple-empty-lines": [
         1,
         {
           "max": 3
+        }
+      ],
+      "new-cap": [
+        2,
+        {
+          "capIsNewExceptionPattern": "NS*"
         }
       ]
     },
