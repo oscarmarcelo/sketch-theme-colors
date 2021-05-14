@@ -250,34 +250,36 @@ for (const button of buttonGroup.querySelectorAll('.button-group__button')) {
  * ========================================================
  */
 
-await loadVersionList()
-  .then(data => {
-    window.sketchVersions = data;
-  });
+(async () => {
+  await loadVersionList()
+    .then(data => {
+      window.sketchVersions = data;
+    });
 
-await loadDiff()
-  .then(data => {
-    window.sketchDiff = data;
-  });
+  await loadDiff()
+    .then(data => {
+      window.sketchDiff = data;
+    });
 
-// TODO: Change index to 0.
-const latestMacOSVersion = Object.keys(window.sketchVersions)[0];
-const latestSketchVersion = window.sketchVersions[latestMacOSVersion][0];
+  // TODO: Change index to 0.
+  const latestMacOSVersion = Object.keys(window.sketchVersions)[0];
+  const latestSketchVersion = window.sketchVersions[latestMacOSVersion][0];
 
-await loadVersion(latestMacOSVersion, latestSketchVersion)
-  .then(data => {
-    window.sketchData = {
-      [latestMacOSVersion]: {
-        [latestSketchVersion]: data
-      }
-    };
+  await loadVersion(latestMacOSVersion, latestSketchVersion)
+    .then(data => {
+      window.sketchData = {
+        [latestMacOSVersion]: {
+          [latestSketchVersion]: data
+        }
+      };
 
-    colorsDropdown.querySelector('.dropdown__item[data-color="multicolour"]').classList.toggle('dropdown__item--hidden', !latestMacOSVersion.endsWith('11'));
+      colorsDropdown.querySelector('.dropdown__item[data-color="multicolour"]').classList.toggle('dropdown__item--hidden', !latestMacOSVersion.endsWith('11'));
 
-    buildVersionsDropdownMenu();
+      buildVersionsDropdownMenu();
 
-    buildThemeHeader(latestMacOSVersion);
-    buildThemeBody(latestMacOSVersion, latestSketchVersion);
+      buildThemeHeader(latestMacOSVersion);
+      buildThemeBody(latestMacOSVersion, latestSketchVersion);
 
-    spinner.classList.add('hidden');
-  });
+      spinner.classList.add('hidden');
+    });
+})();
