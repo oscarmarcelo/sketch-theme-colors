@@ -1,5 +1,5 @@
-const ghPages = require('gh-pages');
+const {publish} = reqwuire('gh-pages');
 
 
 
-ghPages.publish('build');
+publish('build');
