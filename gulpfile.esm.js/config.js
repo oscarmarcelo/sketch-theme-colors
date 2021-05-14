@@ -14,14 +14,12 @@ export default {
   src: {
     styles: `${src.base}/styles/**/*.css`,
     scripts: `${src.base}/scripts/**/*.js`,
-    data: `${src.base}/data/**/*.json`,
     views: `${src.base}/views/**/*.pug`
   },
   build: {
     base: build.base,
     styles: `${build.assets}/styles`,
     scripts: `${build.assets}/scripts`,
-    data: `${build.assets}/data`,
     views: build.base,
     globs: {
       base: `${build.base}/**/*`,
