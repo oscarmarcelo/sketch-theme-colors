@@ -1,12 +1,20 @@
-#!/usr/bin/env node
-
 const {join, parse} = require('path');
+const {cwd, exit} = require('process');
 const {execSync} = require('child_process');
-const runAppleScript = require('run-applescript').sync;
+const {major} = require('semver');
+const {sync: runAppleScriptSync} = require('run-applescript');
 const ora = require('ora');
 const chalk = require('chalk');
 
 
+
+/*
+ * =============================================================================
+ * Prepare System Veriables.
+ * =============================================================================
+ */
+
+const macOSVersionMajor = major(runAppleScriptSync('return system version of (system info)'));
 
 const appearanceModes = [
   'Light',
@@ -24,11 +32,21 @@ const accentColors = [
   'Graphite'
 ];
 
+if (macOSVersionMajor >= 11) {
+  accentColors.unshift('Multicolour');
+}
 
+
+
+/*
+ * =============================================================================
+ * Declare Sketch plugin running function.
+ * =============================================================================
+ */
 
 function runPlugin(filename) {
   const context = {
-    output: join(process.cwd(), 'src/data'),
+    output: join(cwd(), 'src/data', `macOS${macOSVersionMajor}`),
     filename
   };
 
@@ -36,7 +54,7 @@ function runPlugin(filename) {
     [
       sketchToolPath,
       'run',
-      join(__dirname, 'get-sketch-theme-colors.sketchplugin'),
+      join(cwd(), 'scripts', 'get-sketch-theme-colors.sketchplugin'),
       'get-colors',
       `--context="${JSON.stringify(context).replace(/"/g, '\\"')}"`,
       '--without-activating'
@@ -46,6 +64,47 @@ function runPlugin(filename) {
 
 
 
+/*
+ * =============================================================================
+ * Get or set System Preferences colors.
+ * =============================================================================
+ */
+
+function preferences(commandType, appearanceMode, accentColor) {
+  if (commandType === 'get') {
+    commandType = 'return value of';
+  } else if (commandType === 'set') {
+    commandType = 'click';
+  } else {
+    new Error('Unrecognized command type. Expected `get` or `set`.');
+  }
+
+  const appearanceModeCommand = appearanceMode ? `${commandType} checkbox ${Number.isNaN(Number.parseInt(appearanceMode, 10)) ? `"${appearanceMode}"` : appearanceMode} of window "General" of application process "System Preferences"` : '';
+  const accentColorCommand = accentColor ? `${commandType} checkbox "${accentColor}" of window "General" of application process "System Preferences"` : '';
+
+  return runAppleScriptSync(`
+    tell application "System Events"
+      tell application "System Preferences" to activate
+      repeat until exists of checkbox "Dark" of window "General" of application process "System Preferences"
+        delay 0.1
+      end repeat
+      ${appearanceModeCommand}
+      ${accentColorCommand}
+    end tell
+  `);
+}
+
+
+
+/*
+ * =============================================================================
+ * Run Script.
+ * =============================================================================
+ */
+
+/* Get Sketch information.
+ * -----------------------------------------------------------------------------
+ */
 const spinner = ora('Looking for Sketch...').start();
 
 const sketchPath = execSync('mdfind kMDItemCFBundleIdentifier=="com.bohemiancoding.sketch3" | head -n 1')
@@ -54,7 +113,7 @@ const sketchPath = execSync('mdfind kMDItemCFBundleIdentifier=="com.bohemiancodi
 
 if (sketchPath.length === 0) {
   spinner.fail('Sketch not found.\n');
-  process.exit(0);
+  exit(0);
 }
 
 const sketchToolPath = `${sketchPath}/Contents/MacOS/sketchtool`;
@@ -71,34 +130,32 @@ const sketchVersion = execSync(
 spinner.info(`Getting data from Sketch ${sketchVersion} in ${parse(sketchPath).dir}\n`);
 
 
-
+/* Open System Preferences.
+ * -----------------------------------------------------------------------------
+ */
 spinner.start('Opening System Preferences...');
 
-runAppleScript(`
-tell application "System Preferences"
-reveal anchor "Main" of pane id "com.apple.preference.general"
-end tell
+runAppleScriptSync(`
+  tell application "System Preferences"
+    reveal anchor "Main" of pane id "com.apple.preference.general"
+  end tell
 `);
 
 spinner.succeed();
 
 
-
+/* Get current Apearance Mode and Color.
+ * -----------------------------------------------------------------------------
+ */
 spinner.start('Saving current Appearance Mode and Accent Color...\n');
 
 let currentMode;
 let currentColor;
 
-for (const mode of [...appearanceModes, 9]) { // Also check for "Auto", which is checkbox `9` in macOS Catalina.
-  const value = runAppleScript(`
-    tell application "System Events"
-      repeat until exists of checkbox "Dark" of window "General" of application process "System Preferences"
-        delay 0.1
-      end repeat
-      return value of checkbox ${Number.isNaN(Number.parseInt(mode, 10)) ? `"${mode}"` : mode} of window "General" of application process "System Preferences"
-    end tell
-  `);
+for (const mode of [...appearanceModes, (macOSVersionMajor >= 11 ? 8 : 9)]) { // Also check for "Auto", which is checkbox `9` in macOS Catalina and `8` in Big Sur.
+  const value = preferences('get', mode);
 
+  // Set `currentMode` if the checkbox is selected (`1`) and stop loop.
   if (Number.parseInt(value, 10) === 1) {
     currentMode = mode;
     break;
@@ -106,15 +163,9 @@ for (const mode of [...appearanceModes, 9]) { // Also check for "Auto", which is
 }
 
 for (const color of accentColors) {
-  const value = runAppleScript(`
-    tell application "System Events"
-      repeat until exists of checkbox "Dark" of window "General" of application process "System Preferences"
-        delay 0.1
-      end repeat
-      return value of checkbox "${color}" of window "General" of application process "System Preferences"
-    end tell
-  `);
+  const value = preferences('get', null, color);
 
+  // Set `currentColor` if the checkbox is selected (`1`) and stop loop.
   if (Number.parseInt(value, 10) === 1) {
     currentColor = color;
     break;
@@ -124,41 +175,46 @@ for (const color of accentColors) {
 spinner.succeed();
 
 
-
+/* Get Sketch data using all combinations of Apearance Modes and Colors.
+ * -----------------------------------------------------------------------------
+ */
 for (const mode of appearanceModes) {
   spinner.start(`Changing Appearance Mode to ${chalk.bold(mode)}...\n`);
 
-  runAppleScript(`
-    tell application "System Events"
-      repeat until exists of checkbox "Dark" of window "General" of application process "System Preferences"
-        delay 0.1
-      end repeat
-      -- Appearance
-      click checkbox "${mode}" of window "General" of application process "System Preferences"
-    end tell
-  `);
+  // Set Appearance Mode.
+  preferences('set', mode);
 
   spinner.succeed();
 
 
+  // Set Color and get Sketch data.
   for (const color of accentColors) {
-    spinner.start(`Changing Accent Color to ${chalk.keyword(color === 'Graphite' ? 'gray' : color.toLowerCase())(color)}...`);
+    let chalkColor;
 
-    runAppleScript(`
-      tell application "System Events"
-        repeat until exists of checkbox "Dark" of window "General" of application process "System Preferences"
-          delay 0.1
-        end repeat
-        -- Accent Color
-        click checkbox "${color}" of window "General" of application process "System Preferences"
-      end tell
-    `);
+    switch (color) {
+      case 'Multicolour':
+        chalkColor = 'black';
+        break;
+
+      case 'Graphite':
+        chalkColor = 'gray';
+        break;
+
+      default:
+        chalkColor = color.toLowerCase();
+        break;
+    }
+
+    spinner.start(`Changing Accent Color to ${chalk.keyword(chalkColor)(color)}...`);
+
+    // Set Accent Color.
+    preferences('set', null, color);
 
     spinner.succeed();
 
-
     spinner.start(`Generating "${mode.toLowerCase() + color}.json"...\n`);
 
+    // Get Sketch data.
     runPlugin(mode.toLowerCase() + color);
 
     spinner.succeed();
@@ -166,35 +222,31 @@ for (const mode of appearanceModes) {
 }
 
 
-
+/* Revert System Preferences.
+ * -----------------------------------------------------------------------------
+ */
 if (currentMode && currentColor) {
   spinner.start('Reverting Appearance Mode and Accent Color...\n');
 
-  runAppleScript(`
-    tell application "System Events"
-      repeat until exists of checkbox "Dark" of window "General" of application process "System Preferences"
-        delay 0.1
-      end repeat
-      -- Appearance
-      click checkbox ${Number.isNaN(Number.parseInt(currentMode, 10)) ? `"${currentMode}"` : currentMode} of window "General" of application process "System Preferences"
-      -- Accent Color
-      click checkbox "${currentColor}" of window "General" of application process "System Preferences"
-    end tell
-  `);
+  preferences('set', currentMode, currentColor);
 
   spinner.succeed();
 }
 
 
-
+/* Close System Preferences.
+ * -----------------------------------------------------------------------------
+ */
 spinner.start('Closing System Preferences...\n');
 
-runAppleScript('tell application "System Preferences" to quit');
+runAppleScriptSync('tell application "System Preferences" to quit');
 
 spinner.succeed();
 
 
-
+/* Get Sketch plist color data.
+ * -----------------------------------------------------------------------------
+ */
 spinner.start('Generating "plist.json"...\n');
 
 runPlugin('plist');
@@ -202,5 +254,7 @@ runPlugin('plist');
 spinner.succeed();
 
 
-
+/* End.
+ * -----------------------------------------------------------------------------
+ */
 spinner.info(chalk.bold('All done!\n'));
