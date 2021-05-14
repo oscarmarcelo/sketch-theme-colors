@@ -1,4 +1,4 @@
-const {publish} = reqwuire('gh-pages');
+const {publish} = require('gh-pages');
 
 
 
