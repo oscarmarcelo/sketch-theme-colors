@@ -6,7 +6,7 @@ const sketchVersion = require('sketch').version.sketch;
 
 function getColor(namedColor) {
   const mscolor = MSColor.colorWithNSColor(MSTheme.sharedTheme()[namedColor]());
-  const color = mscolor.NSColorWithColorSpace(nil).hexValue().toLowerCase(); // eslint-ignore new-cap
+  const color = mscolor.NSColorWithColorSpace(nil).hexValue().toLowerCase();
   const alpha = mscolor.alpha() < 1 ? Math.round(mscolor.alpha() * 255).toString(16).padStart(2, 0) : '';
 
   return `#${color}${alpha}`;
@@ -29,7 +29,7 @@ function saveToFile(path, filename, contents) {
 
 
 
-function onRun(context) {
+function onRun(context) { // eslint-disable-line no-unused-vars
   const result = {};
 
   if (String(context.filename) === 'plist') {
