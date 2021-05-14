@@ -1,4 +1,5 @@
 - const pkg = require('../../package.json');
+- const {getAccentColors} = require('../../src/scripts/data');
 
 doctype html
 html(lang="en")
@@ -9,6 +10,10 @@ html(lang="en")
     link(rel="stylesheet" href="./assets/styles/main.css")
 
   body
+    template#dropdown-column
+        .dropdown__column
+          .dropdown__column-heading
+
     template#dropdown-group
       .dropdown__group(role="group")
 
@@ -17,7 +22,7 @@ html(lang="en")
 
     template#version-dropdown-item
       a.dropdown__item(href="#" role="menuitem" data-version)
-        span.dropdown__item-name 66
+        span.dropdown__item-name
         span.dropdown__item-badges.space-x-px
           span.dropdown__badge.dropdown__badge--added
           span.dropdown__badge.dropdown__badge--changed
@@ -50,7 +55,7 @@ html(lang="en")
       .flex-grow
         h1 Sketch Theme Colors
         p
-          = `${pkg.description}, made by`
+          = `${pkg.description}. Made by`
           |
           |
           a(href="https://oscarmarcelo.com") Oscar Marcelo
@@ -78,9 +83,27 @@ html(lang="en")
             .dropdown__separator(role="separator")
 
             .dropdown__group(role="group")
-              each color in require('../../src/scripts/data').accentColors
+              each color in getAccentColors('macOS11')
+                - let colorClass
+
+                case color.toLowerCase()
+                  when 'multicolour'
+                    - colorClass = 'multicolour'
+
+                  when 'orange'
+                    - colorClass = 'bg-yellow-500'
+
+                  when 'yellow'
+                    - colorClass = 'bg-yellow-300'
+
+                  when 'graphite'
+                    - colorClass = 'bg-gray-500'
+
+                  default
+                    - colorClass = `bg-${color.toLowerCase()}-500`
+
                 a.dropdown__item(href="#" role="menuitem" data-color=color.toLowerCase())
-                  span.dropdown__item-color-icon(class=`bg-${color === 'Graphite' ? 'gray' : color.toLowerCase()}-500`)
+                  span.dropdown__item-color-icon(class=colorClass)
                   span.dropdown__item-name= color
 
       .button-group.-space-x-px.flex-shrink-0
@@ -89,12 +112,13 @@ html(lang="en")
 
       .dropdown.flex-shrink-0
         button.dropdown__button#versions-menu(aria-haspopup="true")
+          span.dropdown__placeholder
           span.dropdown__placeholder Version
           svg.dropdown__chevron(viewBox="0 0 20 20")
             path(fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd")
 
         .dropdown__menu-wrapper.dropdown__menu-wrapper--align-right
-          .dropdown__menu(role="menu" aria-orientation="vertical" aria-labelledby="versions-menu")
+          .dropdown__menu.dropdown__menu--multi-column(role="menu" aria-orientation="vertical" aria-labelledby="versions-menu")
 
 
     table

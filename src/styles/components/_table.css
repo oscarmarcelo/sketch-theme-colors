@@ -21,12 +21,12 @@ th {
 
 thead th:first-child,
 tbody th {
-  @apply border-r border-gray-200 bg-white sticky font-normal;
+  @apply border-r border-gray-300 bg-white sticky font-normal;
   left: 2.5rem;
 
   &::before {
     content: '';
-    @apply bg-gray-200 absolute w-20 top-0 ;
+    @apply bg-gray-300 absolute w-20 top-0 ;
     bottom: -1px;
     right: 100%;
     z-index: -1;
@@ -40,6 +40,10 @@ tbody th {
     left: 100%;
     z-index: -1;
   }
+}
+
+thead th:first-child {
+  @apply bg-gray-50;
 }
 
 
@@ -75,6 +79,7 @@ tbody tr:hover {
  * ----------------------------
  */
 table {
+  &[data-color="multicolour"] [data-color]:not([data-color="multicolour"]),
   &[data-color="blue"] [data-color]:not([data-color="blue"]),
   &[data-color="purple"] [data-color]:not([data-color="purple"]),
   &[data-color="pink"] [data-color]:not([data-color="pink"]),
@@ -101,8 +106,10 @@ table {
   }
 
   &--head {
+    @apply bg-gray-200 border-gray-300;
+
     &.cell--dark {
-      @apply bg-gray-700 border-gray-900 text-gray-500
+      @apply bg-gray-700 border-gray-900 text-gray-500;
     }
   }
 
@@ -123,10 +130,10 @@ table {
   }
 
   &--changed {
-    @apply bg-orange-100;
+    @apply bg-yellow-100;
 
     &.cell--dark {
-      @apply bg-orange-900;
+      @apply bg-yellow-900;
     }
   }
 }

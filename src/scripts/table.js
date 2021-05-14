@@ -1,4 +1,4 @@
-import {sketchVersions, appearanceModes, accentColors} from './data.js';
+import {getAppearanceModes, getAccentColors} from './data.js';
 
 
 
@@ -13,7 +13,7 @@ const tableBody = document.querySelector('tbody');
  * ========================================================
  */
 
-export function buildThemeHeader() {
+export function buildThemeHeader(macOSVersion) {
   const headRow = document.createElement('tr');
 
   const variableHeadCell = document.createElement('th');
@@ -22,10 +22,34 @@ export function buildThemeHeader() {
   variableHeadCell.textContent = 'Variable';
   headRow.append(variableHeadCell);
 
-  for (const mode of appearanceModes) {
-    for (const color of accentColors) {
+  for (const mode of getAppearanceModes()) {
+    for (const color of getAccentColors(macOSVersion)) {
       const cell = document.querySelector('#head-th').content.cloneNode(true);
       const th = cell.querySelector('th');
+
+      let colorClass;
+
+      switch (color.toLowerCase()) {
+        case 'multicolour':
+          colorClass = 'multicolour';
+          break;
+
+        case 'orange':
+          colorClass = 'bg-yellow-500';
+          break;
+
+        case 'yellow':
+          colorClass = 'bg-yellow-300';
+          break;
+
+        case 'graphite':
+          colorClass = 'bg-gray-500';
+          break;
+
+        default:
+          colorClass = `bg-${color.toLowerCase()}-500`;
+          break;
+      }
 
       if (mode === 'Dark') {
         th.classList.add('cell--dark');
@@ -33,7 +57,7 @@ export function buildThemeHeader() {
 
       th.dataset.color = color.toLowerCase();
       cell.querySelector('.cell-head__text').textContent = `${mode} ${color}`;
-      cell.querySelector('.cell-head__color-icon').classList.add(`bg-${color === 'Graphite' ? 'gray' : color.toLowerCase()}-500`);
+      cell.querySelector('.cell-head__color-icon').classList.add(colorClass);
 
       headRow.append(cell);
     }
@@ -94,13 +118,13 @@ export function buildPlistHeader() {
  * ========================================================
  */
 
-export function buildThemeBody() {
-  const selectedVersion = document.querySelector('#versions-menu').closest('.dropdown').querySelector('.dropdown__item--active').dataset.version;
-  const previousVersion = sketchVersions[sketchVersions.indexOf(selectedVersion) - 1];
+export function buildThemeBody(macOSVersion, sketchVersion) {
+  const selectedVersionData = window.sketchData[macOSVersion][sketchVersion];
+  const previousVersionData = window.sketchData[macOSVersion][window.sketchVersions[macOSVersion].indexOf(sketchVersion) - 1];
 
   const tableBodyFragment = new DocumentFragment();
 
-  for (const [variable, colors] of Object.entries(window.sketchData[selectedVersion].theme)) {
+  for (const [variable, colors] of Object.entries(selectedVersionData.theme)) {
     const row = document.createElement('tr');
 
     const variableCell = document.querySelector('#body-th').content.cloneNode(true);
@@ -112,15 +136,8 @@ export function buildThemeBody() {
 
     let diff = false;
 
-    for (const mode of appearanceModes) {
-      // const haveSameColor = accentColors.every(color => {
-      //   const themeColor = mode.toLowerCase() + color;
-      //   const hexColor = colors[themeColor];
-
-      //   return colors[mode.toLowerCase() + accentColors[0]] === hexColor;
-      // });
-
-      for (const color of accentColors /* (haveSameColor ? [accentColors[0]] : accentColors) */) {
+    for (const mode of getAppearanceModes()) {
+      for (const color of getAccentColors(macOSVersion)) {
         const cell = document.querySelector('#body-td').content.cloneNode(true);
         const td = cell.querySelector('td');
         const themeColor = mode.toLowerCase() + color;
@@ -130,27 +147,16 @@ export function buildThemeBody() {
           td.classList.add('cell--dark');
         }
 
-        // if (haveSameColor) {
-        //   td.colSpan = '8';
-
-        //   cell.querySelector('.color').style.width = 'calc(100% / 8)';
-        //   cell.querySelector('.color').style.margin = '0 auto';
-        // }
-
         td.dataset.color = color.toLowerCase();
         td.dataset.value = hexColor;
 
         // TODO: Handle removed variables.
-        if (previousVersion) {
-          if (window.sketchData[previousVersion]?.theme[variable]?.[themeColor]) {
-            if (window.sketchData[previousVersion].theme[variable][themeColor] !== hexColor) {
-              td.classList.add('cell--changed');
-              diff = 'Changed';
-            }
-          } else {
-            td.classList.add('cell--added');
-            diff = 'New';
-          }
+        const changeType = window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.theme?.[variable]?.[themeColor];
+
+        if (changeType) {
+          td.classList.add(`cell--${changeType}`);
+
+          diff = changeType;
         }
 
         cell.querySelector('.color__preview-inner').style.background = hexColor;
@@ -162,8 +168,8 @@ export function buildThemeBody() {
     }
 
     if (diff) {
-      variableCellBadge.classList.add(`cell-head__badge--${diff === 'New' ? 'added' : 'changed'}`);
-      variableCellBadge.textContent = diff;
+      variableCellBadge.classList.add(`cell-head__badge--${diff}`);
+      variableCellBadge.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
     } else {
       variableCellBadge.remove();
     }
@@ -210,13 +216,13 @@ export function buildThemeBody() {
  * ========================================================
  */
 
-export function buildPlistBody() {
-  const selectedVersion = document.querySelector('#versions-menu').closest('.dropdown').querySelector('.dropdown__item--active').dataset.version;
-  const previousVersion = sketchVersions[sketchVersions.indexOf(selectedVersion) - 1];
+export function buildPlistBody(macOSVersion, sketchVersion) {
+  const selectedVersionData = window.sketchData[macOSVersion][sketchVersion];
+  const previousVersionData = window.sketchData[macOSVersion][window.sketchVersions[macOSVersion].indexOf(sketchVersion) - 1];
 
   const tableBodyFragment = new DocumentFragment();
 
-  for (const [property, variations] of Object.entries(window.sketchData[selectedVersion].plist)) {
+  for (const [property, variations] of Object.entries(selectedVersionData.plist)) {
     const row = document.createElement('tr');
 
     const propertyCell = document.querySelector('#body-th').content.cloneNode(true);
@@ -227,11 +233,11 @@ export function buildPlistBody() {
     const propertyCellText = [];
 
     if (variations.light) {
-      propertyCellText.push(variations.light.property);
+      propertyCellText.push(variations.light.name);
     }
 
     if (variations.dark) {
-      propertyCellText.push(variations.dark.property);
+      propertyCellText.push(variations.dark.name);
     }
 
     propertyCell.querySelector('.cell-head__text').innerHTML = propertyCellText.join('<br>');
@@ -257,23 +263,33 @@ export function buildPlistBody() {
     }
 
     // TODO: Handle removed variables.
-    if (previousVersion) {
-      for (const [mode, values] of Object.entries(variations)) {
-        if (window.sketchData[previousVersion]?.plist?.[property]?.[mode]) {
-          if (window.sketchData[previousVersion].plist[property][mode].value !== values.value) {
-            (mode === 'dark' ? darkValueCell : valueCell).classList.add('cell--changed');
-            diff = 'Changed';
-          }
-        } else {
-          (mode === 'dark' ? darkValueCell : valueCell).classList.add('cell--added');
-          diff = 'New';
-        }
+    const changes = window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.plist?.[property];
+
+    if (changes) {
+      if (changes.light?.value) {
+        valueCell.classList.add(`cell--${changes?.light?.value}`);
+        diff = diff && diff !== changes?.light?.value ? 'changed' : changes?.light?.value;
+      }
+
+      if (changes.light?.interpolation) {
+        interpolationCell.querySelector('td').classList.add(`cell--${changes?.light?.interpolation}`);
+        diff = diff && diff !== changes?.light?.interpolation ? 'changed' : changes?.light?.interpolation;
+      }
+
+      if (changes.dark?.value) {
+        darkValueCell.classList.add(`cell--${changes?.dark?.value}`);
+        diff = diff && diff !== changes?.dark?.value ? 'changed' : changes?.dark?.value;
+      }
+
+      if (changes.dark?.interpolation) {
+        darkInterpolationCell.querySelector('td').classList.add(`cell--${changes?.dark?.interpolation}`);
+        diff = diff && diff !== changes?.dark?.interpolation ? 'changed' : changes?.dark?.interpolation;
       }
     }
 
     if (diff) {
-      propertyCellBadge.classList.add(`cell-head__badge--${diff === 'New' ? 'added' : 'changed'}`);
-      propertyCellBadge.textContent = diff;
+      propertyCellBadge.classList.add(`cell-head__badge--${diff}`);
+      propertyCellBadge.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
     } else {
       propertyCellBadge.remove();
     }

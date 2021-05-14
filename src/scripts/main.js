@@ -1,5 +1,5 @@
-import {sketchVersions, getData, mountData} from './data.js';
-import * as table from './table.js';
+import {loadVersionList, loadVersion, loadDiff} from './data.js';
+import {buildThemeHeader, buildThemeBody, buildPlistHeader, buildPlistBody, clearHeader, clearBody} from './table.js';
 import {initSearch} from './search.js';
 import {closeDropdown, initDropdown} from './dropdown.js';
 import {initButtonGroup} from './button-group.js';
@@ -7,26 +7,6 @@ import {initButtonGroup} from './button-group.js';
 
 
 const spinner = document.querySelector('.spinner');
-
-
-
-/*
- * ========================================================
- * Build data and table.
- * ========================================================
- */
-
-getData()
-  .then(data => {
-    mountData(data);
-
-    buildVersionsDropdownMenu();
-
-    table.buildThemeHeader();
-    table.buildThemeBody();
-
-    spinner.classList.add('hidden');
-  });
 
 
 
@@ -93,139 +73,127 @@ for (const item of colorItems) {
  */
 const versionsDropdown = [...dropdowns].find(dropdown => dropdown.querySelector('#versions-menu'));
 
-function buildVersionsDropdownMenu() {
-  const reversedSketchVersions = Array.from(sketchVersions);
+function buildVersionsDropdownMenu () {
+  const macOSVersions = window.sketchVersions;
 
-  reversedSketchVersions.reverse();
+  const menuFragment = new DocumentFragment();
+  const menuColumnFragment = new DocumentFragment();
+  const menuGroupFragment = new DocumentFragment();
 
-  const versionsMenuFragment = new DocumentFragment();
-  const versionsMenuGroupFragment = new DocumentFragment();
+  for (const [macOSVersion, sketchVersions] of Object.entries(macOSVersions)) {
+    menuColumnFragment.append(document.querySelector('#dropdown-column').content.cloneNode(true));
 
-  for (const version of reversedSketchVersions) {
-    if (reversedSketchVersions.indexOf(version) === 0 || version.match(/v\d+/)[0] !== reversedSketchVersions[reversedSketchVersions.indexOf(version) - 1].match(/v\d+/)[0]) {
-      versionsMenuFragment.append(versionsMenuGroupFragment);
+    menuColumnFragment.querySelector('.dropdown__column-heading').textContent = `macOS ${macOSVersion.slice(5)}`;
 
-      if (reversedSketchVersions.indexOf(version) > 0) {
-        versionsMenuGroupFragment.append(document.querySelector('#dropdown-separator').content.cloneNode(true));
+    for (const sketchVersion of sketchVersions) {
+      // Since Sketch versions are ordered by release, "previous" comes after and "next" comes before the current item in the array.
+      const previousSketchVersion = sketchVersions[sketchVersions.indexOf(sketchVersion) + 1];
+      const nextSketchVersion = sketchVersions[sketchVersions.indexOf(sketchVersion) - 1];
+
+      if (sketchVersions.indexOf(sketchVersion) === 0 || sketchVersion.match(/v\d+/)[0] !== nextSketchVersion?.match(/v\d+/)[0]) {
+        menuColumnFragment.querySelector('.dropdown__column').append(menuGroupFragment);
+
+        if (sketchVersions.indexOf(sketchVersion) > 0) {
+          menuColumnFragment.querySelector('.dropdown__column').append(document.querySelector('#dropdown-separator').content.cloneNode(true));
+        }
+
+        menuGroupFragment.append(document.querySelector('#dropdown-group').content.cloneNode(true));
       }
 
-      versionsMenuGroupFragment.append(document.querySelector('#dropdown-group').content.cloneNode(true));
-    }
+      const item = document.querySelector('#version-dropdown-item').content.cloneNode(true);
 
-    const previousVersion = sketchVersions[sketchVersions.indexOf(version) - 1];
-    const diff = {
-      added: 0,
-      changed: 0,
-      removed: 0
-    };
+      item.querySelector('.dropdown__item').dataset.os = macOSVersion;
+      item.querySelector('.dropdown__item').dataset.version = sketchVersion;
 
-    const item = document.querySelector('#version-dropdown-item').content.cloneNode(true);
+      if (Object.keys(macOSVersions).indexOf(macOSVersion) === 0 && sketchVersions.indexOf(sketchVersion) === 0) {
+        item.querySelector('.dropdown__item').classList.add('dropdown__item--active');
+        const placeholders = versionsDropdown.querySelectorAll('.dropdown__placeholder')
+        placeholders[0].textContent = `macOS ${macOSVersion.slice(5)}`;
+        placeholders[1].textContent = `Sketch ${sketchVersion.slice(1)}`;
+      }
 
-    item.querySelector('.dropdown__item').dataset.version = version;
+      item.querySelector('.dropdown__item-name').textContent = sketchVersion.slice(1);
 
-    if (reversedSketchVersions.indexOf(version) === 0) {
-      item.querySelector('.dropdown__item').classList.add('dropdown__item--active');
-      versionsDropdown.querySelector('.dropdown__placeholder').textContent = version.slice(1);
-    }
+      const diff = Object.assign(
+        {
+          added: 0,
+          changed: 0,
+          removed: 0
+        },
+        window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.counters || {}
+      );
 
-    item.querySelector('.dropdown__item-name').textContent = version.slice(1);
+      for (const [name, amount] of Object.entries(diff)) {
+        const badge = item.querySelector(`.dropdown__badge--${name}`);
 
-    // TODO: Handle removed variables.
-    if (previousVersion) {
-      for (const [variable, colors] of Object.entries(window.sketchData[version].theme)) {
-        const lightColors = Object.fromEntries(Object.entries(colors).filter(color => color[0].startsWith('light')));
-        const darkColors = Object.fromEntries(Object.entries(colors).filter(color => color[0].startsWith('dark')));
-
-        const haveSameLightColor = Object.entries(lightColors).every(color => Object.values(lightColors)[0] === lightColors[color[0]]);
-        const haveSameDarkColor = Object.entries(darkColors).every(color => Object.values(darkColors)[0] === darkColors[color[0]]);
-
-        const uniqueColors = [];
-
-        if (haveSameLightColor) {
-          uniqueColors.push(Object.entries(lightColors)[0]);
+        if (amount > 0) {
+          badge.textContent = amount;
         } else {
-          uniqueColors.push(...Object.entries(lightColors));
+          badge.remove();
+        }
+      }
+
+      if (diff.added > 0 || diff.changed > 0 || diff.removed > 0 || typeof previousSketchVersion === 'undefined') {
+        item.querySelector('.dropdown__badge--unchanged').remove();
+      }
+
+      item.querySelector('.dropdown__item').addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        const versionItems = versionsDropdown.querySelectorAll('.dropdown__item');
+        const oldSelectedItem = [...versionItems].find(item => item.classList.contains('dropdown__item--active'));
+        const newSelectedItem = event.currentTarget;
+        const macOSVersion = newSelectedItem.dataset.os;
+        const sketchVersion = newSelectedItem.dataset.version;
+
+        if (oldSelectedItem) {
+          oldSelectedItem.classList.remove('dropdown__item--active');
         }
 
-        if (haveSameDarkColor) {
-          uniqueColors.push(Object.entries(darkColors)[0]);
+        newSelectedItem.classList.add('dropdown__item--active');
+
+        const placeholders = versionsDropdown.querySelectorAll('.dropdown__placeholder')
+        placeholders[0].textContent = `macOS ${macOSVersion.slice(5)}`;
+        placeholders[1].textContent = `Sketch ${sketchVersion.slice(1)}`;
+
+        closeDropdown(event.target.closest('.dropdown'));
+
+        spinner.classList.remove('hidden');
+
+        if (!window.sketchData[macOSVersion]?.[sketchVersion]) {
+          await loadVersion(macOSVersion, sketchVersion)
+            .then(data => {
+              if (!window.sketchData[macOSVersion]) {
+                window.sketchData[macOSVersion] = {};
+              }
+
+              window.sketchData[macOSVersion][sketchVersion] = data;
+            });
+        }
+
+        clearHeader();
+        clearBody();
+
+        if (document.querySelector('.button-group [aria-pressed="true"]').dataset.value === 'plist') {
+          buildPlistHeader();
+          buildPlistBody(macOSVersion, sketchVersion);
         } else {
-          uniqueColors.push(...Object.entries(darkColors));
+          colorsDropdown.querySelector('.dropdown__item[data-color="multicolour"]').classList.toggle('dropdown__item--hidden', !macOSVersion.endsWith('11'));
+          buildThemeHeader(macOSVersion);
+          buildThemeBody(macOSVersion, sketchVersion);
         }
 
-        for (const [themeColor, color] of uniqueColors) {
-          if (window.sketchData[previousVersion]?.theme[variable]?.[themeColor]) {
-            if (window.sketchData[previousVersion].theme[variable][themeColor] !== color) {
-              diff.changed++;
-            }
-          } else {
-            diff.added++;
-          }
-        }
-      }
+        spinner.classList.add('hidden');
+      });
 
-      for (const [property, variations] of Object.entries(window.sketchData[version].plist)) {
-        for (const [mode, values] of Object.entries(variations)) {
-          if (window.sketchData[previousVersion]?.plist?.[property]?.[mode]) {
-            if (window.sketchData[previousVersion].plist[property][mode].value !== values.value) {
-              diff.changed++;
-            }
-          } else {
-            diff.added++;
-          }
-        }
-      }
+      menuGroupFragment.querySelector('.dropdown__group').append(item);
     }
 
-    for (const [name, amount] of Object.entries(diff)) {
-      const badge = item.querySelector(`.dropdown__badge--${name}`);
-
-      if (amount > 0) {
-        badge.textContent = amount;
-      } else {
-        badge.remove();
-      }
-    }
-
-    if (diff.added > 0 || diff.changed > 0 || diff.removed > 0 || typeof previousVersion === 'undefined') {
-      item.querySelector('.dropdown__badge--unchanged').remove();
-    }
-
-    item.querySelector('.dropdown__item').addEventListener('click', event => {
-      event.preventDefault();
-
-      const versionItems = versionsDropdown.querySelectorAll('.dropdown__item');
-      const selectedItem = [...versionItems].find(item => item.classList.contains('dropdown__item--active'));
-
-      if (selectedItem) {
-        selectedItem.classList.remove('dropdown__item--active');
-      }
-
-      event.currentTarget.classList.add('dropdown__item--active');
-
-      versionsDropdown.querySelector('.dropdown__placeholder').textContent = event.currentTarget.querySelector('.dropdown__item-name').textContent;
-
-      closeDropdown(event.target.closest('.dropdown'));
-
-      spinner.classList.remove('hidden');
-
-      table.clearBody();
-
-      if (document.querySelector('.button-group [aria-pressed="true"]').dataset.value === 'plist') {
-        table.buildPlistBody();
-      } else {
-        table.buildThemeBody();
-      }
-
-      spinner.classList.add('hidden');
-    });
-
-    versionsMenuGroupFragment.querySelector('.dropdown__group').append(item);
+    menuColumnFragment.querySelector('.dropdown__column').append(menuGroupFragment);
+    menuFragment.append(menuColumnFragment);
   }
 
-  versionsMenuFragment.append(versionsMenuGroupFragment);
-
-  versionsDropdown.querySelector('.dropdown__menu').append(versionsMenuFragment);
+  versionsDropdown.querySelector('.dropdown__menu').append(menuFragment);
 }
 
 
@@ -246,6 +214,9 @@ for (const button of buttonGroup.querySelectorAll('.button-group__button')) {
       document.querySelector('[type="search"]').value = '';
 
       const allColorsItem = colorsDropdown.querySelector('.dropdown__item');
+      const selectedVersionItem = versionsDropdown.querySelector('.dropdown__item--active');
+      const macOSVersion = selectedVersionItem.dataset.os;
+      const sketchVersion = selectedVersionItem.dataset.version;
 
       if (allColorsItem.classList.contains('dropdown__item--active') === false) {
         allColorsItem.click();
@@ -255,18 +226,58 @@ for (const button of buttonGroup.querySelectorAll('.button-group__button')) {
 
       spinner.classList.remove('hidden');
 
-      table.clearHeader();
-      table.clearBody();
+      clearHeader();
+      clearBody();
 
       if (button.dataset.value === 'plist') {
-        table.buildPlistHeader();
-        table.buildPlistBody();
+        buildPlistHeader();
+        buildPlistBody(macOSVersion, sketchVersion);
       } else {
-        table.buildThemeHeader();
-        table.buildThemeBody();
+        buildThemeHeader(macOSVersion);
+        buildThemeBody(macOSVersion, sketchVersion);
       }
 
       spinner.classList.add('hidden');
     }
   });
 }
+
+
+
+/*
+ * ========================================================
+ * Build data and table.
+ * ========================================================
+ */
+
+await loadVersionList()
+  .then(data => {
+    window.sketchVersions = data;
+  });
+
+await loadDiff()
+  .then(data => {
+    window.sketchDiff = data;
+  });
+
+// TODO: Change index to 0.
+const latestMacOSVersion = Object.keys(window.sketchVersions)[0];
+const latestSketchVersion = window.sketchVersions[latestMacOSVersion][0];
+
+await loadVersion(latestMacOSVersion, latestSketchVersion)
+  .then(data => {
+    window.sketchData = {
+      [latestMacOSVersion]: {
+        [latestSketchVersion]: data
+      }
+    };
+
+    colorsDropdown.querySelector('.dropdown__item[data-color="multicolour"]').classList.toggle('dropdown__item--hidden', !latestMacOSVersion.endsWith('11'));
+
+    buildVersionsDropdownMenu();
+
+    buildThemeHeader(latestMacOSVersion);
+    buildThemeBody(latestMacOSVersion, latestSketchVersion);
+
+    spinner.classList.add('hidden');
+  });
