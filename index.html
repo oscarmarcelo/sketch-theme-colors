@@ -7,13 +7,18 @@
     <link rel="stylesheet" href="./assets/styles/main.css">
   </head>
   <body>
+    <template id="dropdown-column">
+      <div class="dropdown__column">
+        <div class="dropdown__column-heading"></div>
+      </div>
+    </template>
     <template id="dropdown-group">
       <div class="dropdown__group" role="group"></div>
     </template>
     <template id="dropdown-separator">
       <div class="dropdown__separator" role="separator"></div>
     </template>
-    <template id="version-dropdown-item"><a class="dropdown__item" href="#" role="menuitem" data-version><span class="dropdown__item-name">66</span><span class="dropdown__item-badges space-x-px"><span class="dropdown__badge dropdown__badge--added"></span><span class="dropdown__badge dropdown__badge--changed"></span><span class="dropdown__badge dropdown__badge--removed"></span><span class="dropdown__badge dropdown__badge--unchanged">=</span></span></a></template>
+    <template id="version-dropdown-item"><a class="dropdown__item" href="#" role="menuitem" data-version><span class="dropdown__item-name"></span><span class="dropdown__item-badges space-x-px"><span class="dropdown__badge dropdown__badge--added"></span><span class="dropdown__badge dropdown__badge--changed"></span><span class="dropdown__badge dropdown__badge--removed"></span><span class="dropdown__badge dropdown__badge--unchanged">=</span></span></a></template>
     <template id="head-th">
       <th class="cell cell--head">
         <div class="cell-head"><span class="cell-head__color-icon"></span><span class="cell-head__text"></span></div>
@@ -37,7 +42,7 @@
     <header class="space-x-5">
       <div class="flex-grow">
         <h1>Sketch Theme Colors</h1>
-        <p>A quick way to see the colors used in Sketch's UI, made by
+        <p>A quick way to see the colors used in Sketch's UI. Made by
           <a href="https://oscarmarcelo.com">Oscar Marcelo</a>.
         </p>
       </div>
@@ -58,7 +63,7 @@
           <div class="dropdown__menu" role="menu" aria-orientation="vertical" aria-labelledby="colors-menu">
             <div class="dropdown__group" role="group"><a class="dropdown__item dropdown__item--active" href="#" role="menuitem">All Colors</a></div>
             <div class="dropdown__separator" role="separator"></div>
-            <div class="dropdown__group" role="group"><a class="dropdown__item" href="#" role="menuitem" data-color="blue"><span class="dropdown__item-color-icon bg-blue-500"></span><span class="dropdown__item-name">Blue</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="purple"><span class="dropdown__item-color-icon bg-purple-500"></span><span class="dropdown__item-name">Purple</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="pink"><span class="dropdown__item-color-icon bg-pink-500"></span><span class="dropdown__item-name">Pink</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="red"><span class="dropdown__item-color-icon bg-red-500"></span><span class="dropdown__item-name">Red</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="orange"><span class="dropdown__item-color-icon bg-orange-500"></span><span class="dropdown__item-name">Orange</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="yellow"><span class="dropdown__item-color-icon bg-yellow-500"></span><span class="dropdown__item-name">Yellow</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="green"><span class="dropdown__item-color-icon bg-green-500"></span><span class="dropdown__item-name">Green</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="graphite"><span class="dropdown__item-color-icon bg-gray-500"></span><span class="dropdown__item-name">Graphite</span></a>
+            <div class="dropdown__group" role="group"><a class="dropdown__item" href="#" role="menuitem" data-color="multicolour"><span class="dropdown__item-color-icon multicolour"></span><span class="dropdown__item-name">Multicolour</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="blue"><span class="dropdown__item-color-icon bg-blue-500"></span><span class="dropdown__item-name">Blue</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="purple"><span class="dropdown__item-color-icon bg-purple-500"></span><span class="dropdown__item-name">Purple</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="pink"><span class="dropdown__item-color-icon bg-pink-500"></span><span class="dropdown__item-name">Pink</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="red"><span class="dropdown__item-color-icon bg-red-500"></span><span class="dropdown__item-name">Red</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="orange"><span class="dropdown__item-color-icon bg-yellow-500"></span><span class="dropdown__item-name">Orange</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="yellow"><span class="dropdown__item-color-icon bg-yellow-300"></span><span class="dropdown__item-name">Yellow</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="green"><span class="dropdown__item-color-icon bg-green-500"></span><span class="dropdown__item-name">Green</span></a><a class="dropdown__item" href="#" role="menuitem" data-color="graphite"><span class="dropdown__item-color-icon bg-gray-500"></span><span class="dropdown__item-name">Graphite</span></a>
             </div>
           </div>
         </div>
@@ -68,13 +73,13 @@
         <button class="button-group__button" data-value="plist">Property List</button>
       </div>
       <div class="dropdown flex-shrink-0">
-        <button class="dropdown__button" id="versions-menu" aria-haspopup="true"><span class="dropdown__placeholder">Version</span>
+        <button class="dropdown__button" id="versions-menu" aria-haspopup="true"><span class="dropdown__placeholder"></span><span class="dropdown__placeholder">Version</span>
           <svg class="dropdown__chevron" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
           </svg>
         </button>
         <div class="dropdown__menu-wrapper dropdown__menu-wrapper--align-right">
-          <div class="dropdown__menu" role="menu" aria-orientation="vertical" aria-labelledby="versions-menu"></div>
+          <div class="dropdown__menu dropdown__menu--multi-column" role="menu" aria-orientation="vertical" aria-labelledby="versions-menu"></div>
         </div>
       </div>
     </header>
