@@ -9,11 +9,11 @@
       }
 
       &:focus {
-        @apply outline-none border-blue-300; /* TODO: `shadow-outline-blue` isn't working. Using Tailwind class instead. */
+        @apply shadow-outline outline-none border-blue-400;
       }
 
       &:active {
-        @apply bg-gray-100 text-gray-800; /* TODO: `bg-gray-50` isn't working. Using Tailwind class instead. */
+        @apply bg-gray-100 text-gray-800;
       }
 
       &:first-child {

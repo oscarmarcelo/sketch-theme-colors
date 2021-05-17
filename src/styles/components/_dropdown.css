@@ -9,7 +9,7 @@
     }
 
     &:focus {
-      @apply shadow-outline outline-none border-blue-300;
+      @apply shadow-outline outline-none border-blue-400;
     }
 
     &:active {
