@@ -30,7 +30,6 @@ These are some of the things I wish to work on next:
 - Improve design;
 - Improve code quality;
 - Add diff tooltips in changed cells;
-- Show removed variables and properties;
 - Automate repo updates through GitHub Actions;
   - Gather new data as soon as a new Sketch update releases;
 - Fix content not respecting search filter when one of the other filters changes.

@@ -136,4 +136,12 @@ table {
       @apply bg-yellow-900;
     }
   }
+
+  &--removed {
+    @apply bg-red-100;
+
+    &.cell--dark {
+      @apply bg-red-900;
+    }
+  }
 }

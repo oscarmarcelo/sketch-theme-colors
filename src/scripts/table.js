@@ -83,29 +83,20 @@ export function buildPlistHeader() {
   propertyHeadCell.textContent = 'Property';
   headRow.append(propertyHeadCell);
 
-  const valueHeadCell = document.createElement('th');
+  for (const mode of getAppearanceModes()) {
+    ['Value', 'Interpolation'].forEach(valueKey => {
+      const cell = document.createElement('th');
 
-  valueHeadCell.textContent = 'Light Value';
-  valueHeadCell.classList.add('cell', 'cell--head');
-  headRow.append(valueHeadCell);
+      cell.textContent = (valueKey === 'Value' ? `${mode} ` : '') + valueKey;
+      cell.classList.add('cell', 'cell--head');
 
-  const interpolationHeadCell = document.createElement('th');
+      if (mode === 'Dark') {
+        cell.classList.add('cell--dark');
+      }
 
-  interpolationHeadCell.textContent = 'Interpolation';
-  interpolationHeadCell.classList.add('cell', 'cell--head');
-  headRow.append(interpolationHeadCell);
-
-  const darkValueHeadCell = document.createElement('th');
-
-  darkValueHeadCell.classList.add('cell', 'cell--head', 'cell--dark');
-  darkValueHeadCell.textContent = 'Dark Value';
-  headRow.append(darkValueHeadCell);
-
-  const darkInterpolationHeadCell = document.createElement('th');
-
-  darkInterpolationHeadCell.classList.add('cell', 'cell--head', 'cell--dark');
-  darkInterpolationHeadCell.textContent = 'Interpolation';
-  headRow.append(darkInterpolationHeadCell);
+      headRow.append(cell);
+    });
+  }
 
   tableHead.append(headRow);
 }
@@ -119,12 +110,25 @@ export function buildPlistHeader() {
  */
 
 export function buildThemeBody(macOSVersion, sketchVersion) {
-  const selectedVersionData = window.sketchData[macOSVersion][sketchVersion];
-  const previousVersionData = window.sketchData[macOSVersion][window.sketchVersions[macOSVersion].indexOf(sketchVersion) - 1];
+  const selectedVersionData = JSON.parse(JSON.stringify(window.sketchData[macOSVersion][sketchVersion].theme));
+  const previousVersion = window.sketchVersions[macOSVersion][window.sketchVersions[macOSVersion].indexOf(sketchVersion) + 1];
+  const previousVersionData = window.sketchData[macOSVersion][previousVersion]?.theme;
 
   const tableBodyFragment = new DocumentFragment();
 
-  for (const [variable, colors] of Object.entries(selectedVersionData.theme)) {
+  if (window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.theme) {
+    for (const [variable, colors] of Object.entries(window.sketchDiff[macOSVersion][sketchVersion].theme)) {
+      selectedVersionData[variable] = selectedVersionData[variable] || {};
+
+      for (const theme of Object.keys(colors)) {
+        if (typeof selectedVersionData[variable][theme] === 'undefined') {
+          selectedVersionData[variable][theme] = null;
+        }
+      }
+    }
+  }
+
+  for (const [variable, colors] of Object.entries(selectedVersionData)) {
     const row = document.createElement('tr');
 
     const variableCell = document.querySelector('#body-th').content.cloneNode(true);
@@ -140,18 +144,13 @@ export function buildThemeBody(macOSVersion, sketchVersion) {
       for (const color of getAccentColors(macOSVersion)) {
         const cell = document.querySelector('#body-td').content.cloneNode(true);
         const td = cell.querySelector('td');
+
         const themeColor = mode.toLowerCase() + color;
-        const hexColor = colors[themeColor];
+        const changeType = window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.theme?.[variable]?.[themeColor];
 
         if (mode === 'Dark') {
           td.classList.add('cell--dark');
         }
-
-        td.dataset.color = color.toLowerCase();
-        td.dataset.value = hexColor;
-
-        // TODO: Handle removed variables.
-        const changeType = window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.theme?.[variable]?.[themeColor];
 
         if (changeType) {
           td.classList.add(`cell--${changeType}`);
@@ -159,9 +158,22 @@ export function buildThemeBody(macOSVersion, sketchVersion) {
           diff = changeType;
         }
 
-        cell.querySelector('.color__preview-inner').style.background = hexColor;
-        cell.querySelector('.color__text-rgb').textContent = hexColor.slice(1, 7).toUpperCase();
-        cell.querySelector('.color__text-alpha').textContent = hexColor.slice(7).toUpperCase();
+        if (changeType === 'removed') {
+          td.classList.add('pl-14');
+
+          td.querySelector('.color').remove();
+
+          td.innerHTML = '&ndash;';
+        } else {
+          const hexColor = colors[themeColor];
+
+          td.dataset.color = color.toLowerCase();
+          td.dataset.value = hexColor;
+
+          cell.querySelector('.color__preview-inner').style.background = hexColor;
+          cell.querySelector('.color__text-rgb').textContent = hexColor.slice(1, 7).toUpperCase();
+          cell.querySelector('.color__text-alpha').textContent = hexColor.slice(7).toUpperCase();
+        }
 
         row.append(cell);
       }
@@ -217,12 +229,33 @@ export function buildThemeBody(macOSVersion, sketchVersion) {
  */
 
 export function buildPlistBody(macOSVersion, sketchVersion) {
-  const selectedVersionData = window.sketchData[macOSVersion][sketchVersion];
-  const previousVersionData = window.sketchData[macOSVersion][window.sketchVersions[macOSVersion].indexOf(sketchVersion) - 1];
+  const selectedVersionData = JSON.parse(JSON.stringify(window.sketchData[macOSVersion][sketchVersion].plist));
+  const previousVersion = window.sketchVersions[macOSVersion][window.sketchVersions[macOSVersion].indexOf(sketchVersion) + 1];
+  const previousVersionData = window.sketchData[macOSVersion][previousVersion]?.plist;
 
   const tableBodyFragment = new DocumentFragment();
 
-  for (const [property, variations] of Object.entries(selectedVersionData.plist)) {
+  if (window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.plist) {
+    for (const [property, variations] of Object.entries(window.sketchDiff[macOSVersion][sketchVersion].plist)) {
+      selectedVersionData[property] = selectedVersionData[property] || {};
+
+      for (const mode of Object.keys(variations)) {
+        if (typeof selectedVersionData[property][mode] === 'undefined') {
+          selectedVersionData[property][mode] = {
+            name: previousVersionData[property][mode].name
+          };
+        }
+
+        for (const valueKey of Object.keys(mode)) {
+          if (typeof selectedVersionData[property][mode][valueKey] === 'undefined') {
+            selectedVersionData[property][mode][valueKey] = null;
+          }
+        }
+      }
+    }
+  }
+
+  for (const [property, variations] of Object.entries(selectedVersionData)) {
     const row = document.createElement('tr');
 
     const propertyCell = document.querySelector('#body-th').content.cloneNode(true);
@@ -232,13 +265,13 @@ export function buildPlistBody(macOSVersion, sketchVersion) {
 
     const propertyCellText = [];
 
-    if (variations.light) {
-      propertyCellText.push(variations.light.name);
-    }
+    getAppearanceModes().forEach(mode => {
+      mode = mode.toLowerCase();
 
-    if (variations.dark) {
-      propertyCellText.push(variations.dark.name);
-    }
+      if (variations[mode]) {
+        propertyCellText.push(variations[mode].name);
+      }
+    });
 
     propertyCell.querySelector('.cell-head__text').innerHTML = propertyCellText.join('<br>');
 
@@ -246,46 +279,68 @@ export function buildPlistBody(macOSVersion, sketchVersion) {
 
     let diff = false;
 
-    const valueCell = document.createElement('td');
-    const interpolationCell = document.querySelector('#body-td').content.cloneNode(true);
-    const darkValueCell = document.createElement('td');
-    const darkInterpolationCell = document.querySelector('#body-td').content.cloneNode(true);
+    const cells = {};
 
-    darkValueCell.classList.add('cell--dark');
-    darkInterpolationCell.querySelector('td').classList.add('cell--dark');
+    getAppearanceModes().forEach(mode => {
+      mode = mode.toLowerCase();
 
-    if (variations.light) {
-      valueCell.textContent = variations.light.value;
-    }
+      cells[mode] = {};
 
-    if (variations.dark) {
-      darkValueCell.textContent = variations.dark.value;
-    }
+      ['value', 'interpolation'].forEach(valueKey => {
+        cells[mode][valueKey] = document.querySelector('#body-td').content.cloneNode(true);
+      });
 
-    // TODO: Handle removed variables.
-    const changes = window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.plist?.[property];
-
-    if (changes) {
-      if (changes.light?.value) {
-        valueCell.classList.add(`cell--${changes?.light?.value}`);
-        diff = diff && diff !== changes?.light?.value ? 'changed' : changes?.light?.value;
+      if (mode === 'dark') {
+        cells[mode].value.querySelector('td').classList.add('cell--dark');
+        cells[mode].interpolation.querySelector('td').classList.add('cell--dark');
       }
 
-      if (changes.light?.interpolation) {
-        interpolationCell.querySelector('td').classList.add(`cell--${changes?.light?.interpolation}`);
-        diff = diff && diff !== changes?.light?.interpolation ? 'changed' : changes?.light?.interpolation;
+      if (variations[mode]) {
+        cells[mode].value.querySelector('td').textContent = variations[mode].value;
       }
 
-      if (changes.dark?.value) {
-        darkValueCell.classList.add(`cell--${changes?.dark?.value}`);
-        diff = diff && diff !== changes?.dark?.value ? 'changed' : changes?.dark?.value;
+      const changes = window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.plist?.[property];
+
+      if (changes) {
+        ['value', 'interpolation'].forEach(valueKey => {
+          if (changes[mode]?.[valueKey]) {
+            cells[mode][valueKey].querySelector('td').classList.add(`cell--${changes[mode][valueKey]}`);
+            diff = diff && diff !== changes[mode][valueKey] ? 'changed' : changes[mode][valueKey];
+
+            if (changes[mode][valueKey] === 'removed') {
+              cells[mode][valueKey].querySelector('td').innerHTML = '&ndash;';
+
+              if (valueKey === 'interpolation') {
+                cells[mode][valueKey].querySelector('td').classList.add('pl-14');
+              }
+            }
+          }
+        });
       }
 
-      if (changes.dark?.interpolation) {
-        darkInterpolationCell.querySelector('td').classList.add(`cell--${changes?.dark?.interpolation}`);
-        diff = diff && diff !== changes?.dark?.interpolation ? 'changed' : changes?.dark?.interpolation;
+      if (variations[mode]?.interpolation) {
+        cells[mode].interpolation.querySelector('.color__preview-inner').style.background = variations[mode].interpolation;
+        cells[mode].interpolation.querySelector('.color__text-rgb').textContent = variations[mode].interpolation.slice(1, 7).toUpperCase();
+        cells[mode].interpolation.querySelector('.color__text-alpha').textContent = variations[mode].interpolation.slice(7).toUpperCase();
+      } else {
+        cells[mode].interpolation.querySelector('.color')?.remove();
+
+        const colorShade = mode === 'dark' ? 900 : 200;
+
+        if (!variations[mode]) {
+          ['value', 'interpolation'].forEach(valueKey => {
+            if (valueKey === 'value') {
+              cells[mode][valueKey].querySelector('.color')?.remove();
+            }
+            cells[mode][valueKey].querySelector('td').classList.add(`bg-gray-${colorShade}`);
+          });
+        }
       }
-    }
+
+      ['value', 'interpolation'].forEach(valueKey => {
+        row.append(cells[mode][valueKey]);
+      });
+    });
 
     if (diff) {
       propertyCellBadge.classList.add(`cell-head__badge--${diff}`);
@@ -293,37 +348,6 @@ export function buildPlistBody(macOSVersion, sketchVersion) {
     } else {
       propertyCellBadge.remove();
     }
-
-    if (variations.light?.interpolation) {
-      interpolationCell.querySelector('.color__preview-inner').style.background = variations.light.interpolation;
-      interpolationCell.querySelector('.color__text-rgb').textContent = variations.light.interpolation.slice(1, 7).toUpperCase();
-      interpolationCell.querySelector('.color__text-alpha').textContent = variations.light.interpolation.slice(7).toUpperCase();
-    } else {
-      interpolationCell.querySelector('.color').remove();
-
-      if (!variations.light) {
-        valueCell.classList.add('bg-gray-200');
-        interpolationCell.querySelector('td').classList.add('bg-gray-200');
-      }
-    }
-
-    if (variations.dark?.interpolation) {
-      darkInterpolationCell.querySelector('.color__preview-inner').style.background = variations.dark.interpolation;
-      darkInterpolationCell.querySelector('.color__text-rgb').textContent = variations.dark.interpolation.slice(1, 7).toUpperCase();
-      darkInterpolationCell.querySelector('.color__text-alpha').textContent = variations.dark.interpolation.slice(7).toUpperCase();
-    } else {
-      darkInterpolationCell.querySelector('.color').remove();
-
-      if (!variations.dark) {
-        darkValueCell.classList.add('bg-gray-900');
-        darkInterpolationCell.querySelector('td').classList.add('bg-gray-900');
-      }
-    }
-
-    row.append(valueCell);
-    row.append(interpolationCell);
-    row.append(darkValueCell);
-    row.append(darkInterpolationCell);
 
     tableBodyFragment.append(row);
   }

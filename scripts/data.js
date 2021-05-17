@@ -370,15 +370,15 @@ for (const [macOSVersion, sketchVersions] of Object.entries(mountedData)) {
       };
 
       for (const [variable, themeValues] of Object.entries(versionData.theme)) {
-        diff.theme[variable] = {};
+        diff.theme[variable] = diff.theme[variable] || {};
 
         for (const [theme, value] of Object.entries(themeValues)) {
           if (previousVersionData.theme?.[variable]?.[theme]) {
             if (previousVersionData.theme[variable][theme] !== value) {
               diff.theme[variable][theme] = 'changed';
               diff.counters.changed++;
-              delete previousVersionData.theme[variable][theme];
             }
+            delete previousVersionData.theme[variable][theme];
           } else {
             diff.theme[variable][theme] = 'added';
             diff.counters.added++;
@@ -386,24 +386,28 @@ for (const [macOSVersion, sketchVersions] of Object.entries(mountedData)) {
         }
       }
 
-      // TODO: List removed values.
-      // for (const theme of Object.keys(previousVersionData.theme[variable][theme])) {
-      //   diff.theme[variable][theme] = 'removed';
-      // }
+      for (const [variable, themeValues] of Object.entries(previousVersionData.theme)) {
+        diff.theme[variable] = diff.theme[variable] || {};
+
+        for (const theme of Object.keys(themeValues)) {
+          diff.theme[variable][theme] = 'removed';
+          diff.counters.removed++;
+        }
+      }
 
       for (const [variable, modeValues] of Object.entries(versionData.plist)) {
-        diff.plist[variable] = {};
+        diff.plist[variable] = diff.plist[variable] || {};
 
         for (const [mode, values] of Object.entries(modeValues)) {
-          diff.plist[variable][mode] = {};
+          diff.plist[variable][mode] = diff.plist[variable][mode] || {};
 
           ['value', 'interpolation'].forEach(valueKey => {
             if (previousVersionData.plist?.[variable]?.[mode]?.[valueKey]) {
               if (previousVersionData.plist[variable][mode][valueKey] !== values[valueKey]) {
                 diff.plist[variable][mode][valueKey] = 'changed';
                 diff.counters.changed++;
-                delete previousVersionData.plist[variable][mode][valueKey];
               }
+              delete previousVersionData.plist[variable][mode][valueKey];
             } else if (values[valueKey]) {
               diff.plist[variable][mode][valueKey] = 'added';
               diff.counters.added++;
@@ -412,10 +416,20 @@ for (const [macOSVersion, sketchVersions] of Object.entries(mountedData)) {
         }
       }
 
-      // TODO: List removed values.
-      // for (const mode of Object.keys(previousVersionData.plist[variable][mode])) {
-      //   diff.plist[variable][mode] = 'removed';
-      // }
+      for (const [variable, modeValues] of Object.entries(previousVersionData.plist)) {
+        diff.plist[variable] = diff.plist[variable] || {};
+
+        for (const mode of Object.keys(modeValues)) {
+          diff.plist[variable][mode] = diff.plist[variable][mode] || {};
+
+          ['value', 'interpolation'].forEach(valueKey => {
+            if (previousVersionData.plist[variable][mode][valueKey]) {
+              diff.plist[variable][mode][valueKey] = 'removed';
+              diff.counters.removed++;
+            }
+          });
+        }
+      }
 
       diffData[macOSVersion][sketchVersion] = diff;
     }

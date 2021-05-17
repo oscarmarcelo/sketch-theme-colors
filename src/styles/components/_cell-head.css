@@ -24,5 +24,9 @@
     &--changed {
       @apply text-yellow-700 bg-yellow-200;
     }
+
+    &--removed {
+      @apply text-red-700 bg-red-200;
+    }
   }
 }
