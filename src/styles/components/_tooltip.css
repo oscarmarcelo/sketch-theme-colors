@@ -1,0 +1,16 @@
+.tooltip {
+  @apply border border-gray-300 shadow-lg rounded-md bg-white px-6 py-4 absolute top-0 left-0 z-10 text-xs opacity-0 transform -translate-x-1/2 translate-y-1 scale-95 origin-bottom transition ease-in duration-75 pointer-events-none;
+
+  &::after {
+    content: '';
+    @apply border-b border-r border-gray-300 bg-white w-2.5 h-2.5 absolute top-full left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-45;
+  }
+
+  &--active {
+    @apply opacity-100 scale-100 ease-out duration-100;
+  }
+
+  &__heading {
+    @apply mb-2 text-gray-500 font-medium text-xxs leading-4 uppercase tracking-wide;
+  }
+}

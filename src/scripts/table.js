@@ -1,4 +1,5 @@
 import {getAppearanceModes, getAccentColors} from './data.js';
+import {setTooltipContent, positionTooltip, showTooltip, hideTooltip} from './tooltip.js';
 
 
 
@@ -155,6 +156,10 @@ export function buildThemeBody(macOSVersion, sketchVersion) {
         if (changeType) {
           td.classList.add(`cell--${changeType}`);
 
+          if (['changed', 'removed'].includes(changeType)) {
+            td.dataset.previousColor = previousVersionData[variable][themeColor];
+          }
+
           diff = changeType;
         }
 
@@ -192,9 +197,9 @@ export function buildThemeBody(macOSVersion, sketchVersion) {
   tableBody.append(tableBodyFragment);
 
 
-  /* Highlight cell with the same color
-  * ----------------------------
-  */
+  /* Cell interactions.
+   * -----------------------------------------------------------------------------
+   */
   const colorCells = tableBody.querySelectorAll('td');
 
   for (const currentCell of colorCells) {
@@ -217,6 +222,24 @@ export function buildThemeBody(macOSVersion, sketchVersion) {
         }
       }
     });
+
+    if (currentCell.classList.contains('cell--changed') || currentCell.classList.contains('cell--removed')) {
+      currentCell.addEventListener('mouseenter', () => {
+        const color = document.querySelector('#color').content.cloneNode(true);
+
+        const hexColor = currentCell.dataset.previousColor;
+
+        color.querySelector('.color__preview-inner').style.background = hexColor;
+        color.querySelector('.color__text-rgb').textContent = hexColor.slice(1, 7).toUpperCase();
+        color.querySelector('.color__text-alpha').textContent = hexColor.slice(7).toUpperCase();
+
+        setTooltipContent(color);
+        positionTooltip(currentCell);
+        showTooltip();
+      });
+
+      currentCell.addEventListener('mouseleave', hideTooltip);
+    }
   }
 }
 
@@ -307,6 +330,12 @@ export function buildPlistBody(macOSVersion, sketchVersion) {
             cells[mode][valueKey].querySelector('td').classList.add(`cell--${changes[mode][valueKey]}`);
             diff = diff && diff !== changes[mode][valueKey] ? 'changed' : changes[mode][valueKey];
 
+            if (['changed', 'removed'].includes(changes[mode][valueKey])) {
+              const datasetValue = valueKey === 'interpolation' ? 'previousColor' : 'previousValue';
+
+              cells[mode][valueKey].querySelector('td').dataset[datasetValue] = previousVersionData[property][mode][valueKey];
+            }
+
             if (changes[mode][valueKey] === 'removed') {
               cells[mode][valueKey].querySelector('td').innerHTML = '&ndash;';
 
@@ -353,6 +382,36 @@ export function buildPlistBody(macOSVersion, sketchVersion) {
   }
 
   tableBody.append(tableBodyFragment);
+
+  /* Cell interactions.
+   * -----------------------------------------------------------------------------
+   */
+  const cells = tableBody.querySelectorAll('td');
+
+  for (const currentCell of cells) {
+    if (currentCell.classList.contains('cell--changed') || currentCell.classList.contains('cell--removed')) {
+      currentCell.addEventListener('mouseenter', () => {
+
+        if (currentCell.dataset.previousColor) {
+          const color = document.querySelector('#color').content.cloneNode(true);
+          const hexColor = currentCell.dataset.previousColor;
+
+          color.querySelector('.color__preview-inner').style.background = hexColor;
+          color.querySelector('.color__text-rgb').textContent = hexColor.slice(1, 7).toUpperCase();
+          color.querySelector('.color__text-alpha').textContent = hexColor.slice(7).toUpperCase();
+
+          setTooltipContent(color);
+        } else {
+          setTooltipContent(currentCell.dataset.previousValue);
+        }
+
+        positionTooltip(currentCell);
+        showTooltip();
+      });
+
+      currentCell.addEventListener('mouseleave', hideTooltip);
+    }
+  }
 }
 
 

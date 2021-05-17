@@ -51,6 +51,15 @@ html(lang="en")
             span.color__text-rgb
             span.color__text-alpha
 
+    template#color
+      .color
+        .color__preview
+          .color__preview-inner
+        .color__text
+          span.color__text-number-sign #
+          span.color__text-rgb
+          span.color__text-alpha
+
     header.space-x-5
       .flex-grow
         h1 Sketch Theme Colors
@@ -124,5 +133,9 @@ html(lang="en")
     table
       thead
       tbody
+
+    .tooltip
+      .tooltip__heading Previous value:
+      .tooltip__body
 
     script(src="./assets/scripts/main.js" type="module")

@@ -13,5 +13,6 @@
 @import './components/_table.css';
 @import './components/_cell-head.css';
 @import './components/_color.css';
+@import './components/_tooltip.css';
 
 @import 'tailwindcss/utilities';
