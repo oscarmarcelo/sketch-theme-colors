@@ -5,7 +5,8 @@
   "scripts": {
     "start": "gulp",
     "build": "gulp build",
-    "get-colors": "node ./scripts/get-colors.js && node ./scripts/data.js",
+    "data": "node ./scripts/data.js",
+    "get-colors": "node ./scripts/get-colors.js && npm run data",
     "publish": "node ./scripts/publish.js"
   },
   "repository": {
