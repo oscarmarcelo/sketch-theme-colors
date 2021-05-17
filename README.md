@@ -14,7 +14,7 @@ This project is built in two phases:
 ### Build Instructions
 
 1. Just like any other Node project, run `npm install`;
-2. Run `npm run get-colors` to get Sketch data. Ensure you have Sketch installed in your system installed first!
+2. Run `npm run get-colors` to get Sketch data. Ensure you have Sketch installed in your system first!
 3. Run `npm start` to build the website, run a local webserver and open the page.
 
 Alternatively, you can run `npm run build` to just build the website without starting the webserver.
