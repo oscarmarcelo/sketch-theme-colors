@@ -114,34 +114,110 @@ table {
   }
 
   &--highlighted {
-    @apply bg-red-300 !important;
+    .color__preview {
+      @apply ring-4 ring-indigo-500 ring-offset-3 ring-offset-gray-100;
+    }
 
     &.cell--dark {
-      @apply bg-red-900 !important;
+      .color__preview {
+        @apply ring-offset-gray-800;
+      }
     }
   }
 
   &--added {
     @apply bg-green-100;
 
+    .color__preview {
+      @apply ring-offset-green-100;
+    }
+
+    tbody tr:hover & {
+      @apply bg-green-200;
+
+      .color__preview {
+        @apply ring-offset-green-200;
+      }
+    }
+
     &.cell--dark {
       @apply bg-green-900;
+
+      .color__preview {
+        @apply ring-offset-green-900;
+      }
+
+      tbody tr:hover & {
+        @apply bg-green-800;
+
+        .color__preview {
+          @apply ring-offset-green-800;
+        }
+      }
     }
   }
 
   &--changed {
     @apply bg-yellow-100;
 
+    .color__preview {
+      @apply ring-offset-yellow-100;
+    }
+
+    tbody tr:hover & {
+      @apply bg-yellow-200;
+
+      .color__preview {
+        @apply ring-offset-yellow-200;
+      }
+    }
+
     &.cell--dark {
       @apply bg-yellow-900;
+
+      .color__preview {
+        @apply ring-offset-yellow-900;
+      }
+
+      tbody tr:hover & {
+        @apply bg-yellow-800;
+
+        .color__preview {
+          @apply ring-offset-yellow-800;
+        }
+      }
     }
   }
 
   &--removed {
     @apply bg-red-100;
 
+    .color__preview {
+      @apply ring-offset-red-100;
+    }
+
+    tbody tr:hover & {
+      @apply bg-red-200;
+
+      .color__preview {
+        @apply ring-offset-red-200;
+      }
+    }
+
     &.cell--dark {
       @apply bg-red-900;
+
+      .color__preview {
+        @apply ring-offset-red-900;
+      }
+
+      tbody tr:hover & {
+        @apply bg-red-800;
+
+        .color__preview {
+          @apply ring-offset-red-800;
+        }
+      }
     }
   }
 }

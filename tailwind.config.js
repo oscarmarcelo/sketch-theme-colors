@@ -8,6 +8,9 @@ module.exports = {
       },
       fontSize: {
         xxs: '.625rem'
+      },
+      ringOffsetWidth: {
+        3: '3px'
       }
     },
   },
