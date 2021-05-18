@@ -1226,6 +1226,14 @@ table[data-color="multicolour"] [data-color]:not([data-color="multicolour"]), ta
     display: none;
   }
 
+/* Filtered Rows
+ * ----------------------------
+ */
+
+table[data-changes-only] tbody tr:not([data-change-type]) {
+    display: none;
+  }
+
 /* Cells
  * ----------------------------
  */

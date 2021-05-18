@@ -187,6 +187,8 @@ export function buildThemeBody(macOSVersion, sketchVersion) {
     if (diff) {
       variableCellBadge.classList.add(`cell-head__badge--${diff}`);
       variableCellBadge.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
+
+      row.dataset.changeType = diff;
     } else {
       variableCellBadge.remove();
     }
@@ -374,6 +376,8 @@ export function buildPlistBody(macOSVersion, sketchVersion) {
     if (diff) {
       propertyCellBadge.classList.add(`cell-head__badge--${diff}`);
       propertyCellBadge.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
+
+      row.dataset.changeType = diff;
     } else {
       propertyCellBadge.remove();
     }

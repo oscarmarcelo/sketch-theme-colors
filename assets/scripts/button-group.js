@@ -9,10 +9,18 @@ export function initButtonGroup(group) {
 
   for (const button of buttons) {
     button.addEventListener('click', () => {
-      if (button.getAttribute('aria-pressed') !== 'true') {
-        [...buttons].find(pressedButton => pressedButton.getAttribute('aria-pressed')).removeAttribute('aria-pressed');
+      if ([...buttons].length  === 1) {
+        if (button.hasAttribute('aria-pressed')) {
+          button.removeAttribute('aria-pressed');
+        } else {
+          button.setAttribute('aria-pressed', 'true');
+        }
+      } else {
+        if (button.getAttribute('aria-pressed') !== 'true') {
+          [...buttons].find(pressedButton => pressedButton.getAttribute('aria-pressed')).removeAttribute('aria-pressed');
 
-        button.setAttribute('aria-pressed', 'true');
+          button.setAttribute('aria-pressed', 'true');
+        }
       }
     });
   }
