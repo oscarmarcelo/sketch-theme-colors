@@ -30,7 +30,7 @@ export function positionTooltip (anchor) {
   const offsetParent = anchor.offsetParent;
 
   Object.assign(tooltip.style, {
-    width: `${anchor.offsetWidth}px`,
+    minWidth: `${anchor.offsetWidth}px`,
     top: `${offsetParent.offsetTop + anchor.offsetTop - tooltip.offsetHeight}px`,
     left: `${offsetParent.offsetLeft + anchor.offsetLeft + anchor.offsetWidth / 2}px`
   });
@@ -60,7 +60,7 @@ export function hideTooltip () {
   tooltip.addEventListener('transitionend', () => {
     if (tooltip.classList.contains('tooltip--active') === false) {
       Object.assign(tooltip.style, {
-        width: '',
+        minWidth: '',
         top: '',
         left: ''
       });

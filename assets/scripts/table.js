@@ -149,6 +149,8 @@ export function buildThemeBody(macOSVersion, sketchVersion) {
         const themeColor = mode.toLowerCase() + color;
         const changeType = window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.theme?.[variable]?.[themeColor];
 
+        td.dataset.color = color.toLowerCase();
+
         if (mode === 'Dark') {
           td.classList.add('cell--dark');
         }
@@ -172,7 +174,6 @@ export function buildThemeBody(macOSVersion, sketchVersion) {
         } else {
           const hexColor = colors[themeColor];
 
-          td.dataset.color = color.toLowerCase();
           td.dataset.value = hexColor;
 
           cell.querySelector('.color__preview-inner').style.background = hexColor;
