@@ -10,7 +10,7 @@ header {
 }
 
 h1 {
-  @apply text-yellow-500 font-bold text-4xl;
+  @apply text-yellow-600 font-bold text-4xl;
 }
 
 header p {
