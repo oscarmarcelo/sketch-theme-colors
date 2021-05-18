@@ -78,6 +78,13 @@ html(lang="en")
 
         input.input-group__input(type="search" placeholder="Search" spellcheck="false")
 
+      #views-button-group.button-group.-space-x-px.flex-shrink-0
+        button.button-group__button(data-value="theme" aria-pressed="true") Theme
+        button.button-group__button(data-value="plist") Property List
+
+      #changes-button-group.button-group.-space-x-px.flex-shrink-0
+        button.button-group__button Changes Only
+
       .dropdown.flex-shrink-0
         button.dropdown__button#colors-menu(aria-haspopup="true")
           span.dropdown__placeholder All Colors
@@ -114,10 +121,6 @@ html(lang="en")
                 a.dropdown__item(href="#" role="menuitem" data-color=color.toLowerCase())
                   span.dropdown__item-color-icon(class=colorClass)
                   span.dropdown__item-name= color
-
-      .button-group.-space-x-px.flex-shrink-0
-        button.button-group__button(data-value="theme" aria-pressed="true") Theme
-        button.button-group__button(data-value="plist") Property List
 
       .dropdown.flex-shrink-0
         button.dropdown__button#versions-menu(aria-haspopup="true")

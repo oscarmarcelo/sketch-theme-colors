@@ -208,15 +208,22 @@ function buildVersionsDropdownMenu () {
 
 /*
  * ========================================================
- * Prepare button group
+ * Prepare button groups
  * ========================================================
  */
 
-const buttonGroup = document.querySelector('.button-group');
+const buttonGroups = document.querySelectorAll('.button-group');
 
-initButtonGroup(buttonGroup);
+for (const buttonGroup of buttonGroups) {
+  initButtonGroup(buttonGroup);
+}
 
-for (const button of buttonGroup.querySelectorAll('.button-group__button')) {
+
+/* Views button group.
+ * -----------------------------------------------------------------------------
+ */
+
+for (const button of document.querySelectorAll('#views-button-group .button-group__button')) {
   button.addEventListener('click', () => {
     if (button.getAttribute('aria-pressed') === 'true') {
       document.querySelector('[type="search"]').value = '';
@@ -249,6 +256,19 @@ for (const button of buttonGroup.querySelectorAll('.button-group__button')) {
     }
   });
 }
+
+
+/* Changes button group.
+ * -----------------------------------------------------------------------------
+ */
+
+document.querySelector('#changes-button-group .button-group__button').addEventListener('click', event => {
+  if (event.target.hasAttribute('aria-pressed')) {
+    document.querySelector('table').dataset.changesOnly = '';
+  } else {
+    delete document.querySelector('table').dataset.changesOnly;
+  }
+});
 
 
 

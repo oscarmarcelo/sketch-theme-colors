@@ -92,6 +92,17 @@ table {
   }
 }
 
+
+/* Filtered Rows
+ * ----------------------------
+ */
+
+table {
+  &[data-changes-only] tbody tr:not([data-change-type]) {
+    @apply hidden;
+  }
+}
+
 /* Cells
  * ----------------------------
  */
