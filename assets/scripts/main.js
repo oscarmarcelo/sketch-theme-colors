@@ -145,6 +145,7 @@ function buildVersionsDropdownMenu () {
         const newSelectedItem = event.currentTarget;
         const macOSVersion = newSelectedItem.dataset.os;
         const sketchVersion = newSelectedItem.dataset.version;
+        const previousSketchVersion = window.sketchVersions[macOSVersion][window.sketchVersions[macOSVersion].indexOf(sketchVersion) + 1];
 
         if (oldSelectedItem) {
           oldSelectedItem.classList.remove('dropdown__item--active');
@@ -168,6 +169,13 @@ function buildVersionsDropdownMenu () {
               }
 
               window.sketchData[macOSVersion][sketchVersion] = data;
+            });
+        }
+
+        if (window.sketchDiff[macOSVersion][sketchVersion] && !window.sketchData[macOSVersion]?.[previousSketchVersion]) {
+          await loadVersion(macOSVersion, previousSketchVersion)
+            .then(data => {
+              window.sketchData[macOSVersion][previousSketchVersion] = data;
             });
         }
 
@@ -261,9 +269,9 @@ for (const button of buttonGroup.querySelectorAll('.button-group__button')) {
       window.sketchDiff = data;
     });
 
-  // TODO: Change index to 0.
   const latestMacOSVersion = Object.keys(window.sketchVersions)[0];
   const latestSketchVersion = window.sketchVersions[latestMacOSVersion][0];
+  const previousSketchVersion = window.sketchVersions[latestMacOSVersion][1];
 
   await loadVersion(latestMacOSVersion, latestSketchVersion)
     .then(data => {
@@ -272,14 +280,21 @@ for (const button of buttonGroup.querySelectorAll('.button-group__button')) {
           [latestSketchVersion]: data
         }
       };
-
-      colorsDropdown.querySelector('.dropdown__item[data-color="multicolour"]').classList.toggle('dropdown__item--hidden', !latestMacOSVersion.endsWith('11'));
-
-      buildVersionsDropdownMenu();
-
-      buildThemeHeader(latestMacOSVersion);
-      buildThemeBody(latestMacOSVersion, latestSketchVersion);
-
-      spinner.classList.add('hidden');
     });
+
+  if (window.sketchDiff[latestMacOSVersion][latestSketchVersion]) {
+    await loadVersion(latestMacOSVersion, previousSketchVersion)
+      .then(data => {
+        window.sketchData[latestMacOSVersion][previousSketchVersion] = data;
+      });
+  }
+
+  colorsDropdown.querySelector('.dropdown__item[data-color="multicolour"]').classList.toggle('dropdown__item--hidden', !latestMacOSVersion.endsWith('11'));
+
+  buildVersionsDropdownMenu();
+
+  buildThemeHeader(latestMacOSVersion);
+  buildThemeBody(latestMacOSVersion, latestSketchVersion);
+
+  spinner.classList.add('hidden');
 })();
