@@ -57,11 +57,15 @@ export function showTooltip () {
  */
 
 export function hideTooltip () {
-  tooltip.classList.remove('tooltip--active');
-
-  Object.assign(tooltip.style, {
-    width: '',
-    top: '',
-    left: ''
+  tooltip.addEventListener('transitionend', () => {
+    if (tooltip.classList.contains('tooltip--active') === false) {
+      Object.assign(tooltip.style, {
+        width: '',
+        top: '',
+        left: ''
+      });
+    }
   });
+
+  tooltip.classList.remove('tooltip--active');
 }
