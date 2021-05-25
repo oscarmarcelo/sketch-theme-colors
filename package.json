@@ -1,6 +1,6 @@
 {
   "name": "sketch-theme-colors",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "A quick way to see the colors used in Sketch's UI",
   "scripts": {
     "start": "gulp",
