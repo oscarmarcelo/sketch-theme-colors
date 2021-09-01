@@ -112,7 +112,7 @@ export function buildPlistHeader() {
 
 export function buildThemeBody(macOSVersion, sketchVersion) {
   const selectedVersionData = JSON.parse(JSON.stringify(window.sketchData[macOSVersion][sketchVersion].theme));
-  const previousVersion = window.sketchVersions[macOSVersion][window.sketchVersions[macOSVersion].indexOf(sketchVersion) + 1];
+  const previousVersion = window.sketchVersions.list[macOSVersion][window.sketchVersions.list[macOSVersion].indexOf(sketchVersion) + 1];
   const previousVersionData = window.sketchData[macOSVersion][previousVersion]?.theme;
 
   const tableBodyFragment = new DocumentFragment();
@@ -256,7 +256,7 @@ export function buildThemeBody(macOSVersion, sketchVersion) {
 
 export function buildPlistBody(macOSVersion, sketchVersion) {
   const selectedVersionData = JSON.parse(JSON.stringify(window.sketchData[macOSVersion][sketchVersion].plist));
-  const previousVersion = window.sketchVersions[macOSVersion][window.sketchVersions[macOSVersion].indexOf(sketchVersion) + 1];
+  const previousVersion = window.sketchVersions.list[macOSVersion][window.sketchVersions.list[macOSVersion].indexOf(sketchVersion) + 1];
   const previousVersionData = window.sketchData[macOSVersion][previousVersion]?.plist;
 
   const tableBodyFragment = new DocumentFragment();

@@ -74,7 +74,8 @@ for (const item of colorItems) {
 const versionsDropdown = [...dropdowns].find(dropdown => dropdown.querySelector('#versions-menu'));
 
 function buildVersionsDropdownMenu () {
-  const macOSVersions = window.sketchVersions;
+  const macOSVersions = window.sketchVersions.list;
+  const availableSketchVersions = window.sketchVersions.available;
 
   const menuFragment = new DocumentFragment();
   const menuColumnFragment = new DocumentFragment();
@@ -85,114 +86,132 @@ function buildVersionsDropdownMenu () {
 
     menuColumnFragment.querySelector('.dropdown__column-heading').textContent = `macOS ${macOSVersion.slice(5)}`;
 
-    for (const sketchVersion of sketchVersions) {
+    let hideSeparator = true;
+
+    for (const sketchVersion of availableSketchVersions) {
       // Since Sketch versions are ordered by release, "previous" comes after and "next" comes before the current item in the array.
       const previousSketchVersion = sketchVersions[sketchVersions.indexOf(sketchVersion) + 1];
-      const nextSketchVersion = sketchVersions[sketchVersions.indexOf(sketchVersion) - 1];
+      const nextAvailableSketchVersion = availableSketchVersions[availableSketchVersions.indexOf(sketchVersion) - 1];
 
-      if (sketchVersions.indexOf(sketchVersion) === 0 || sketchVersion.match(/v\d+/)[0] !== nextSketchVersion?.match(/v\d+/)[0]) {
+      if (availableSketchVersions.indexOf(sketchVersion) === 0 || sketchVersion.match(/v\d+/)[0] !== nextAvailableSketchVersion?.match(/v\d+/)[0]) {
         menuColumnFragment.querySelector('.dropdown__column').append(menuGroupFragment);
 
-        if (sketchVersions.indexOf(sketchVersion) > 0) {
-          menuColumnFragment.querySelector('.dropdown__column').append(document.querySelector('#dropdown-separator').content.cloneNode(true));
+        if (availableSketchVersions.indexOf(sketchVersion) > 0) {
+          const separator = document.querySelector('#dropdown-separator').content.cloneNode(true);
+
+          if (hideSeparator) {
+            separator.querySelector('.dropdown__separator').classList.add('dropdown__separator--placeholder');
+          }
+
+          menuColumnFragment.querySelector('.dropdown__column').append(separator);
         }
 
         menuGroupFragment.append(document.querySelector('#dropdown-group').content.cloneNode(true));
       }
 
-      const item = document.querySelector('#version-dropdown-item').content.cloneNode(true);
+      let item;
 
-      item.querySelector('.dropdown__item').dataset.os = macOSVersion;
-      item.querySelector('.dropdown__item').dataset.version = sketchVersion;
+      if (sketchVersions.includes(sketchVersion)) {
+        item = document.querySelector('#version-dropdown-item').content.cloneNode(true);
 
-      if (Object.keys(macOSVersions).indexOf(macOSVersion) === 0 && sketchVersions.indexOf(sketchVersion) === 0) {
-        item.querySelector('.dropdown__item').classList.add('dropdown__item--active');
-        const placeholders = versionsDropdown.querySelectorAll('.dropdown__placeholder')
-        placeholders[0].textContent = `macOS ${macOSVersion.slice(5)}`;
-        placeholders[1].textContent = `Sketch ${sketchVersion.slice(1)}`;
+        item.querySelector('.dropdown__item').dataset.os = macOSVersion;
+        item.querySelector('.dropdown__item').dataset.version = sketchVersion;
+
+        if (Object.keys(macOSVersions).indexOf(macOSVersion) === 0 && sketchVersions.indexOf(sketchVersion) === 0) {
+          item.querySelector('.dropdown__item').classList.add('dropdown__item--active');
+          const placeholders = versionsDropdown.querySelectorAll('.dropdown__placeholder')
+          placeholders[0].textContent = `macOS ${macOSVersion.slice(5)}`;
+          placeholders[1].textContent = `Sketch ${sketchVersion.slice(1)}`;
+        }
+
+        item.querySelector('.dropdown__item-name').textContent = sketchVersion.slice(1);
+
+        const diff = Object.assign(
+          {
+            added: 0,
+            changed: 0,
+            removed: 0
+          },
+          window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.counters || {}
+        );
+
+        for (const [name, amount] of Object.entries(diff)) {
+          const badge = item.querySelector(`.dropdown__badge--${name}`);
+
+          if (amount > 0) {
+            badge.textContent = amount;
+          } else {
+            badge.remove();
+          }
+        }
+
+        if (diff.added > 0 || diff.changed > 0 || diff.removed > 0 || typeof previousSketchVersion === 'undefined') {
+          item.querySelector('.dropdown__badge--unchanged').remove();
+        }
+
+        item.querySelector('.dropdown__item').addEventListener('click', async (event) => {
+          event.preventDefault();
+
+          const versionItems = versionsDropdown.querySelectorAll('.dropdown__item');
+          const oldSelectedItem = [...versionItems].find(item => item.classList.contains('dropdown__item--active'));
+          const newSelectedItem = event.currentTarget;
+          const macOSVersion = newSelectedItem.dataset.os;
+          const sketchVersion = newSelectedItem.dataset.version;
+          const previousSketchVersion = window.sketchVersions.list[macOSVersion][window.sketchVersions.list[macOSVersion].indexOf(sketchVersion) + 1];
+
+          if (oldSelectedItem) {
+            oldSelectedItem.classList.remove('dropdown__item--active');
+          }
+
+          newSelectedItem.classList.add('dropdown__item--active');
+
+          const placeholders = versionsDropdown.querySelectorAll('.dropdown__placeholder')
+          placeholders[0].textContent = `macOS ${macOSVersion.slice(5)}`;
+          placeholders[1].textContent = `Sketch ${sketchVersion.slice(1)}`;
+
+          closeDropdown(event.target.closest('.dropdown'));
+
+          spinner.classList.remove('hidden');
+
+          if (!window.sketchData[macOSVersion]?.[sketchVersion]) {
+            await loadVersion(macOSVersion, sketchVersion)
+              .then(data => {
+                if (!window.sketchData[macOSVersion]) {
+                  window.sketchData[macOSVersion] = {};
+                }
+
+                window.sketchData[macOSVersion][sketchVersion] = data;
+              });
+          }
+
+          if (window.sketchDiff[macOSVersion][sketchVersion] && !window.sketchData[macOSVersion]?.[previousSketchVersion]) {
+            await loadVersion(macOSVersion, previousSketchVersion)
+              .then(data => {
+                window.sketchData[macOSVersion][previousSketchVersion] = data;
+              });
+          }
+
+          clearHeader();
+          clearBody();
+
+          if (document.querySelector('.button-group [aria-pressed="true"]').dataset.value === 'plist') {
+            buildPlistHeader();
+            buildPlistBody(macOSVersion, sketchVersion);
+          } else {
+            colorsDropdown.querySelector('.dropdown__item[data-color="multicolour"]').classList.toggle('dropdown__item--hidden', !macOSVersion.endsWith('11'));
+            buildThemeHeader(macOSVersion);
+            buildThemeBody(macOSVersion, sketchVersion);
+          }
+
+          spinner.classList.add('hidden');
+        });
+
+        hideSeparator = sketchVersions.indexOf(sketchVersion) === sketchVersions.length - 1;
+      } else {
+        item = document.querySelector('#version-dropdown-item-placeholder').content.cloneNode(true);
+
+        item.querySelector('.dropdown__item-name').textContent = sketchVersion.slice(1);
       }
-
-      item.querySelector('.dropdown__item-name').textContent = sketchVersion.slice(1);
-
-      const diff = Object.assign(
-        {
-          added: 0,
-          changed: 0,
-          removed: 0
-        },
-        window.sketchDiff?.[macOSVersion]?.[sketchVersion]?.counters || {}
-      );
-
-      for (const [name, amount] of Object.entries(diff)) {
-        const badge = item.querySelector(`.dropdown__badge--${name}`);
-
-        if (amount > 0) {
-          badge.textContent = amount;
-        } else {
-          badge.remove();
-        }
-      }
-
-      if (diff.added > 0 || diff.changed > 0 || diff.removed > 0 || typeof previousSketchVersion === 'undefined') {
-        item.querySelector('.dropdown__badge--unchanged').remove();
-      }
-
-      item.querySelector('.dropdown__item').addEventListener('click', async (event) => {
-        event.preventDefault();
-
-        const versionItems = versionsDropdown.querySelectorAll('.dropdown__item');
-        const oldSelectedItem = [...versionItems].find(item => item.classList.contains('dropdown__item--active'));
-        const newSelectedItem = event.currentTarget;
-        const macOSVersion = newSelectedItem.dataset.os;
-        const sketchVersion = newSelectedItem.dataset.version;
-        const previousSketchVersion = window.sketchVersions[macOSVersion][window.sketchVersions[macOSVersion].indexOf(sketchVersion) + 1];
-
-        if (oldSelectedItem) {
-          oldSelectedItem.classList.remove('dropdown__item--active');
-        }
-
-        newSelectedItem.classList.add('dropdown__item--active');
-
-        const placeholders = versionsDropdown.querySelectorAll('.dropdown__placeholder')
-        placeholders[0].textContent = `macOS ${macOSVersion.slice(5)}`;
-        placeholders[1].textContent = `Sketch ${sketchVersion.slice(1)}`;
-
-        closeDropdown(event.target.closest('.dropdown'));
-
-        spinner.classList.remove('hidden');
-
-        if (!window.sketchData[macOSVersion]?.[sketchVersion]) {
-          await loadVersion(macOSVersion, sketchVersion)
-            .then(data => {
-              if (!window.sketchData[macOSVersion]) {
-                window.sketchData[macOSVersion] = {};
-              }
-
-              window.sketchData[macOSVersion][sketchVersion] = data;
-            });
-        }
-
-        if (window.sketchDiff[macOSVersion][sketchVersion] && !window.sketchData[macOSVersion]?.[previousSketchVersion]) {
-          await loadVersion(macOSVersion, previousSketchVersion)
-            .then(data => {
-              window.sketchData[macOSVersion][previousSketchVersion] = data;
-            });
-        }
-
-        clearHeader();
-        clearBody();
-
-        if (document.querySelector('.button-group [aria-pressed="true"]').dataset.value === 'plist') {
-          buildPlistHeader();
-          buildPlistBody(macOSVersion, sketchVersion);
-        } else {
-          colorsDropdown.querySelector('.dropdown__item[data-color="multicolour"]').classList.toggle('dropdown__item--hidden', !macOSVersion.endsWith('11'));
-          buildThemeHeader(macOSVersion);
-          buildThemeBody(macOSVersion, sketchVersion);
-        }
-
-        spinner.classList.add('hidden');
-      });
 
       menuGroupFragment.querySelector('.dropdown__group').append(item);
     }
@@ -289,9 +308,9 @@ document.querySelector('#changes-button-group .button-group__button').addEventLi
       window.sketchDiff = data;
     });
 
-  const latestMacOSVersion = Object.keys(window.sketchVersions)[0];
-  const latestSketchVersion = window.sketchVersions[latestMacOSVersion][0];
-  const previousSketchVersion = window.sketchVersions[latestMacOSVersion][1];
+  const latestMacOSVersion = Object.keys(window.sketchVersions.list)[0];
+  const latestSketchVersion = window.sketchVersions.list[latestMacOSVersion][0];
+  const previousSketchVersion = window.sketchVersions.list[latestMacOSVersion][1];
 
   await loadVersion(latestMacOSVersion, latestSketchVersion)
     .then(data => {

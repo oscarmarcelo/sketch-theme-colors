@@ -83,14 +83,19 @@ function getVersions () {
   const macOSVersions = readdirSync(root)
     .filter(dirname => statSync(join(root, dirname)).isDirectory())
     .sort(sortByRelease);
-  const versions = {};
+  const versions = {
+    available: [],
+    list: {}
+  };
 
   macOSVersions.forEach(macOSVersion => {
     const macOSVersionRoot = join(root, macOSVersion);
-    versions[macOSVersion] = readdirSync(macOSVersionRoot)
+    versions.list[macOSVersion] = readdirSync(macOSVersionRoot)
       .filter(dirname => statSync(join(macOSVersionRoot, dirname)).isDirectory())
       .sort(sortByRelease);
   });
+
+  versions.available = [...new Set(Object.values(versions.list).flat())].sort(sortByRelease);
 
   return versions;
 }
@@ -318,7 +323,7 @@ writeFile(join(cwd(), 'build/assets/data', 'versions.json'), versions);
  */
 const rawData = {};
 
-for (const [macOSVersion, sketchVersions] of Object.entries(versions)) {
+for (const [macOSVersion, sketchVersions] of Object.entries(versions.list)) {
   rawData[macOSVersion] = {};
 
   sketchVersions.forEach(sketchVersion => {

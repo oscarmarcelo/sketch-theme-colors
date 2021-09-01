@@ -80,6 +80,10 @@
 
   &__separator {
     @apply border-t border-gray-100;
+
+    &--placeholder {
+      @apply invisible;
+    }
   }
 
   &__item {
@@ -99,6 +103,10 @@
 
     &--hidden {
       @apply hidden;
+    }
+
+    &--placeholder {
+      @apply invisible;
     }
 
     &-color-icon {
