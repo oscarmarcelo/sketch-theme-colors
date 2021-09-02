@@ -15,6 +15,7 @@ This project is built in two phases:
 
 1. Just like any other Node project, run `npm install`;
 2. Run `npm run get-colors` to get Sketch data. Ensure you have Sketch installed in your system first!
+    1. If the terminal you are using isn't yet allowed to assistive access, the script will fail. Ensure it has permissions in System Preferences > Security & Privacy > Privacy tab > Accessibility option.
 3. Run `npm start` to build the website, run a local webserver and open the page.
 
 Alternatively, you can run `npm run build` to just build the website without starting the webserver.
