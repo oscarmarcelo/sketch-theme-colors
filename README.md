@@ -37,7 +37,8 @@ These are some of the things I wish to work on next:
 - Improve code quality;
 - Automate repo updates through GitHub Actions;
   - Gather new data as soon as a new Sketch update releases;
-- Fix content not respecting search filter when one of the other filters changes.
+- Fix content not respecting search filter when one of the other filters changes;
 - Migrate to Node ESM when Gulp adds support for it:
-  - [Issue regarding Gulp not supporting Node's ESM](https://github.com/gulpjs/gulp/issues/2417)
-  - [Migration Guide](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c#how-can-i-move-my-commonjs-project-to-esm)
+  - [Issue regarding Gulp not supporting Node's ESM](https://github.com/gulpjs/gulp/issues/2417);
+  - [Migration Guide](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c#how-can-i-move-my-commonjs-project-to-esm);
+- Automate commits.
