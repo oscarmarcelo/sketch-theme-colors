@@ -84,7 +84,7 @@ function buildVersionsDropdownMenu () {
   for (const [macOSVersion, sketchVersions] of Object.entries(macOSVersions)) {
     menuColumnFragment.append(document.querySelector('#dropdown-column').content.cloneNode(true));
 
-    menuColumnFragment.querySelector('.dropdown__column-heading').textContent = `macOS ${macOSVersion.slice(5)}`;
+    menuColumnFragment.querySelector('.dropdown__column-heading').textContent = `macOS ${Number.parseInt(macOSVersion.slice(5)) >= 11 ? '11+' : '10'}`;
 
     let hideSeparator = true;
 
@@ -120,7 +120,7 @@ function buildVersionsDropdownMenu () {
         if (Object.keys(macOSVersions).indexOf(macOSVersion) === 0 && sketchVersions.indexOf(sketchVersion) === 0) {
           item.querySelector('.dropdown__item').classList.add('dropdown__item--active');
           const placeholders = versionsDropdown.querySelectorAll('.dropdown__placeholder')
-          placeholders[0].textContent = `macOS ${macOSVersion.slice(5)}`;
+          placeholders[0].textContent = `macOS ${Number.parseInt(macOSVersion.slice(5)) >= 11 ? '11+' : '10'}`;
           placeholders[1].textContent = `Sketch ${sketchVersion.slice(1)}`;
         }
 
@@ -166,7 +166,7 @@ function buildVersionsDropdownMenu () {
           newSelectedItem.classList.add('dropdown__item--active');
 
           const placeholders = versionsDropdown.querySelectorAll('.dropdown__placeholder')
-          placeholders[0].textContent = `macOS ${macOSVersion.slice(5)}`;
+          placeholders[0].textContent = `macOS ${Number.parseInt(macOSVersion.slice(5)) >= 11 ? '11+' : '10'}`;
           placeholders[1].textContent = `Sketch ${sketchVersion.slice(1)}`;
 
           closeDropdown(event.target.closest('.dropdown'));

@@ -1,7 +1,7 @@
 const {join, parse} = require('path');
 const {cwd, exit} = require('process');
 const {execSync} = require('child_process');
-const {major} = require('semver');
+const {coerce, major} = require('semver');
 const {sync: runAppleScriptSync} = require('run-applescript');
 const ora = require('ora');
 const chalk = require('chalk');
@@ -14,7 +14,7 @@ const chalk = require('chalk');
  * =============================================================================
  */
 
-const macOSVersionMajor = major(runAppleScriptSync('return system version of (system info)'));
+const macOSVersionMajor = major(coerce(runAppleScriptSync('return system version of (system info)')));
 
 const appearanceModes = [
   'Light',
@@ -46,7 +46,7 @@ if (macOSVersionMajor >= 11) {
 
 function runPlugin(filename) {
   const context = {
-    output: join(cwd(), 'src/data', `macOS${macOSVersionMajor}`),
+    output: join(cwd(), 'src/data', `macOS${macOSVersionMajor >= 11 ? 11 : 10}`),
     filename
   };
 
@@ -107,7 +107,7 @@ function preferences(commandType, appearanceMode, accentColor) {
  */
 const spinner = ora('Looking for Sketch...').start();
 
-const sketchPath = execSync('mdfind kMDItemCFBundleIdentifier=="com.bohemiancoding.sketch3" | head -n 1')
+const sketchPath = execSync('mdfind kMDItemCFBundleIdentifier=="com.bohemiancoding.sketch3" | sort | tail -n 1')
   .toString()
   .trim();
 
