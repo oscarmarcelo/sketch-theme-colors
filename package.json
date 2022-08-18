@@ -4,6 +4,7 @@
   "description": "A quick way to see the colors used in Sketch's UI",
   "scripts": {
     "start": "npm run get-colors && gulp",
+    "serve": "gulp serve",
     "build": "gulp build",
     "data": "node ./scripts/data.js",
     "get-colors": "node ./scripts/get-colors.js && npm run data",
