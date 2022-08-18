@@ -3,7 +3,7 @@
   "version": "2.31.0",
   "description": "A quick way to see the colors used in Sketch's UI",
   "scripts": {
-    "start": "gulp",
+    "start": "npm run get-colors && gulp",
     "build": "gulp build",
     "data": "node ./scripts/data.js",
     "get-colors": "node ./scripts/get-colors.js && npm run data",
